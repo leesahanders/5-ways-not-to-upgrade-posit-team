@@ -11,3 +11,53 @@ $headerorange: #e7ad52;
 // Override theme settings
 $presentation-heading-color: $headerorange !default;
 $presentation-list-bullet-color: $headerorange !default;
+
+/*-- scss:rules --*/
+
+// Meme placeholder: swap for ![](img/xxx.jpg) once you have the image
+.meme {
+  border: 3px dashed $headerorange;
+  border-radius: 12px;
+  padding: 1.2em;
+  text-align: center;
+  font-size: 0.9em;
+  .template { color: $cyan; font-weight: 700; display: block; margin-bottom: 0.6em; }
+  .caption  { font-family: Impact, "Anton", sans-serif; text-transform: uppercase; font-size: 1.3em; letter-spacing: 0.02em; }
+}
+
+// Horror story card
+.horror {
+  border-left: 8px solid $red;
+  background: rgba(255, 85, 85, 0.08);
+  padding: 0.8em 1.2em;
+  border-radius: 6px;
+  .label { color: $red; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8em; }
+}
+
+// Lesson / "do this instead" callout
+.lesson {
+  border-left: 8px solid $green;
+  background: rgba(80, 250, 123, 0.08);
+  padding: 0.6em 1.2em;
+  border-radius: 6px;
+}
+
+// Fake terminal output for the funny error screenshots
+.terminal {
+  background: #000;
+  color: $green;
+  font-family: "Fira Code", Menlo, monospace;
+  font-size: 0.75em;
+  padding: 0.8em 1.2em;
+  border-radius: 8px;
+  border-top: 28px solid #333;
+  .err { color: $red; white-space: pre-wrap; }
+  p { margin: 0; }
+}
+
+// Bigger code for webinar readability
+.reveal div.sourceCode pre code, .reveal pre code {
+  font-size: 22px !important;
+  line-height: 1.4 !important;
+  max-height: 800px;
+}

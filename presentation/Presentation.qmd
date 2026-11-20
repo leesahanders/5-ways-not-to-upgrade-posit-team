@@ -18,7 +18,7 @@ format:
     theme: [night, custom.scss]
     auto-stretch: false
     center: false
-    footer: "Find the presentation code on github [here](https://github.com/leesahanders/server-hardening-for-kx)"
+    footer: "Find the presentation code on github [here](https://github.com/leesahanders/5-ways-not-to-upgrade-posit-team)"
     logo: /img/posit-logo-black-TM.png
 revealjs-plugins:
   - editable
@@ -28,65 +28,293 @@ filters:
 editor: source
 ---
 
-## 5 Ways Not To Upgrade Posit Team 
+## 5 Ways Not To Upgrade Posit Team
 
-Funny image placeholder 
+<!-- TODO: funny image, e.g. "this is fine" dog in a burning server room -->
 
-## YOLO
+Funny image placeholder
 
-No staging server, only production 
-No backups 
+::: notes
+Press the S key (or use the Navigation Menu) to show the speaker view.
 
-## Upgrading a major version of the OS 
+Welcome! Today is a tour of the upgrade mistakes I've seen (and maybe made). Each one comes with what goes wrong and what to do instead.
+:::
 
-Don't do this, spin up a new server and migrate. It breaks so many system libraries 
-
-## Forgetting to handle annual maintenance 
-
-You need to update the ssl certs and license annually, periodic patching. 
-
-## Just not upgrading, ever
-
-18 month support window. 
-
-
-
-## Backup stuff and formatting
-
-<!-- Tried themes: night, [dark, dark.scss], dracula (good but pink), moon (good but faint font), night is great but I want the title to be a different color -->
-
-<!-- Pro tip set width: 1800 and height: 1050 so the text looks reasonably sized -->
-
-<!-- I wrote it in math and I wrote it in bash and I will talk to it if you don't like either -->
-
-<!-- ![](/img/meme6.jpg){fig-align="center" width=50%} -->
-
-<br>
+## How to ruin your weekend
 
 :::: {.columns}
 
 ::: {.column width="50%"}
-- What is server hardening? 
-- What are the server hardening standards? 
-- Specific examples of server hardening tools / applications and how they interact with Posit Team: FIPS, selinux, apparmor, umask, firewalls, etc
-- Sprinkled throughout: Troubleshooting tips and tricks
+1. **YOLO: no staging, no backups**
+2. **The in-place OS upgrade**
+3. **Forgetting annual maintenance**
+4. **Just not upgrading, ever**
+5. **Not reading the release notes**
 
+**Bonus:** Surprise! 🎁
 :::
 
 ::: {.column width="50%"}
-![](/img/meme6.jpg){fig-align="center" width=100%}
+<!-- TODO: meme image -->
+Meme placeholder
 :::
 
 ::::
 
-::: aside
-For an excellent companion presentation see [Sam Cofer's server hardening deck](https://pub.current.posit.team/connect/#/apps/eddbaf25-2a5e-4076-8038-fa070a11bf2f/access/343) (heavily drawn from for this presentation)
+::: notes
+For each one: the anti-pattern, what actually breaks, and what to do instead. At the end we flip all of them into a checklist.
 :::
 
-<!-- Here's an interesting ticket talking about server hardening, CIS https://rstudioide.zendesk.com/agent/tickets/91031 and some interesting discussion here: https://positpbc.slack.com/archives/G02HSFX6BEF/p1709051356406839?thread_ts=1709050432.037669&cid=G02HSFX6BEF -->
+# 1. YOLO {background-color="#1a1a2e"}
+
+## YOLO: the anti-pattern
+
+> "We only have one server. It's production. It's fine."
+
+- No staging environment, only production
+- No backups (or backups nobody has ever restored)
+- No rollback plan
+- Upgrade run straight from the terminal, live, on a Tuesday afternoon
+
+<!-- TODO: meme image -->
+
+## YOLO: what goes wrong
+
+- Upgrades run **database schema migrations**. Once they run, the old version may not work with the new schema.
+- "Just reinstall the old version" isn't a rollback plan. Rolling back means **restoring the backup** of the database and data directory.
+- No backup → no rollback → a very long night
+- Something you could have caught in staging gets found by your users in production
 
 ::: notes
-Press the S key (or use the Navigation Menu) to show the presentation speaker view (multiplex).
+Connect docs: create a backup of the Connect database and data directory before upgrading, so you can roll back if you need to. The same idea applies to Workbench and Package Manager.
 :::
 
-<!-- ## What makes me an expert? {visibility="hidden"}-->
+## YOLO: do this instead
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**Have a staging environment**
+
+- Same OS, same config, same auth, same integrations as production
+- Upgrade staging first, test, *then* production
+- Bonus: it's also where you try out new features
+:::
+
+::: {.column width="50%"}
+**Back up before every upgrade**
+
+- Database (SQLite file or PostgreSQL dump)
+- Data directory
+- Config files (`/etc/rstudio`, `/etc/rstudio-connect`, `/etc/rstudio-pm`)
+- **Test the restore.** A backup you've never restored is a hope, not a backup.
+:::
+
+::::
+
+# 2. The in-place OS upgrade {background-color="#1a1a2e"}
+
+## In-place OS upgrade: the anti-pattern
+
+> "Ubuntu 22.04 → 24.04? There's a command for that!"
+
+- `do-release-upgrade` (or `leapp` on RHEL) on the server running Posit Team
+- Upgrading the OS *and* the Posit products in the same maintenance window
+
+<!-- TODO: meme image -->
+
+## In-place OS upgrade: what goes wrong
+
+- System libraries change versions (`libssl`, `libcurl`, `libicu`, `gdal`, ...)
+- R and Python builds were compiled against the old libraries → they break
+- Compiled packages in user libraries and Connect content caches break
+- Package Manager binary packages are built **per OS version**. Repo URLs pointing at the old OS now give you the wrong binaries.
+- The Posit product package is built for a specific OS version too
+
+::: notes
+This is the one that causes the most mysterious "it worked yesterday" errors. Loads of packages break in ways that look unrelated.
+:::
+
+## In-place OS upgrade: do this instead
+
+**Build a new server and migrate**
+
+1. Build a fresh server on the new OS
+2. Install Posit products, R and Python versions built for that OS
+3. Point Package Manager repo URLs at the new OS binaries
+4. Migrate the data: database, data directory, config
+5. Test, then move DNS / the load balancer over
+6. Keep the old server around until you're confident
+
+Bonus: you get a free rollback plan, because the old server is still there.
+
+# 3. Forgetting annual maintenance {background-color="#1a1a2e"}
+
+## Forgetting annual maintenance: the anti-pattern
+
+> "Why is everyone getting a certificate warning?"
+
+- SSL/TLS certificates expire
+- License files expire
+- OS patching happens "when we get to it"
+- The only person who knew how to do it left the company
+
+<!-- TODO: meme image -->
+
+## Forgetting annual maintenance: what goes wrong
+
+- **Expired certificate**: browsers block users, and publishing / API calls / integrations fail TLS checks
+- **Expired license**: the product stops working
+- **Unpatched OS**: security findings, audit failures, emergency patching on someone else's schedule
+
+## Forgetting annual maintenance: do this instead
+
+- Put certificate and license expiry dates **on a shared calendar**, with reminders 30+ days out
+- Monitor certificate expiry automatically
+- Set a regular OS patching cadence (monthly / quarterly)
+- Write a runbook so it's not tribal knowledge
+
+```bash
+# When does my certificate expire?
+openssl x509 -enddate -noout -in /path/to/cert.pem
+```
+
+# 4. Just not upgrading, ever {background-color="#1a1a2e"}
+
+## Never upgrading: the anti-pattern
+
+> "If it ain't broke, don't fix it."
+
+- "We'll upgrade when something breaks"
+- Still running a version from several years ago
+- Every upgrade is a huge, scary event, so it keeps getting pushed back
+
+<!-- TODO: meme image -->
+
+## Never upgrading: what goes wrong
+
+- Out of the **18-month support window** <!-- TODO: verify wording/link for the support lifecycle -->
+- Unpatched security vulnerabilities
+- Missing features and bug fixes users are asking for
+- New R / Python / OS versions aren't supported on old product versions
+- The eventual upgrade jumps across many versions at once, with many breaking changes stacked up
+
+## Never upgrading: do this instead
+
+- **Upgrade on a regular cadence** (e.g., quarterly), so each upgrade is small and boring
+- Boring upgrades are the goal
+- Practice makes the process routine: runbook, staging, backups, testing
+
+# 5. Not reading the release notes {background-color="#1a1a2e"}
+
+## Not reading the release notes: the anti-pattern
+
+> "It's just a version bump."
+
+- `apt upgrade` and hope
+- Skipping several versions without reading what changed in between
+- Reading only the newest release's notes
+
+<!-- TODO: meme image -->
+
+## Not reading the release notes: what goes wrong
+
+- **Breaking changes**: behavior changes you needed to plan for
+- **Deprecated / removed config settings**: the server won't start, or quietly ignores your config
+- **Changed requirements**: OS versions, R / Python versions, database versions
+- **Upgrade-specific steps**: e.g., large databases needing extra disk space for schema migrations
+
+::: notes
+Connect docs: when upgrading from a much older version, reviewing the detailed release notes is strongly recommended. Each release has "Breaking" and "Deprecated / Removed" sections.
+
+Connect docs also mention servers with very large instrumentation tables can fail upgrades when migrations run out of disk / WAL capacity. You only learn that by reading.
+:::
+
+## Not reading the release notes: do this instead
+
+- Read the release notes for **every version** between where you are and where you're going
+- Look first for **Breaking**, **Deprecated / Removed**, and upgrade notes
+- After upgrading, check the logs for deprecation warnings
+- Keep a running list of config changes in your runbook
+
+**Release notes:**
+
+- Workbench: <https://docs.posit.co/ide/news/>
+- Connect: <https://docs.posit.co/connect/news/>
+- Package Manager: <https://docs.posit.co/rspm/news/>
+
+# Bonus: Surprise! 🎁 {background-color="#1a1a2e"}
+
+## Surprise!: the anti-pattern
+
+> "It'll only take ten minutes, nobody will notice."
+
+- Upgrade with no notice to users
+- No maintenance window
+- No testing afterward. If nobody complains, it worked, right?
+
+<!-- TODO: meme image -->
+
+## Surprise!: what goes wrong
+
+- Workbench sessions get killed mid-analysis, and unsaved work is lost
+- Connect apps and APIs go down during a demo / deadline / board meeting
+- Scheduled reports fail or are skipped
+- Broken content goes unnoticed until a user finds it (days later)
+- Users lose trust in the platform
+
+::: notes
+Even a smooth upgrade means some downtime. The Connect docs say under ~10 minutes, and recommend scheduling during low-usage periods.
+:::
+
+## Surprise!: do this instead
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**Communicate**
+
+- Agree on a regular maintenance window
+- Announce ahead of time (email, Teams/Slack channel, banner)
+- Tell users what's new
+- Send an "all clear" when it's done
+:::
+
+::: {.column width="50%"}
+**Test after every upgrade**
+
+- Smoke test: log in, start a session in each IDE
+- Publish something to Connect
+- Open key apps, APIs, and reports
+- Install a package from Package Manager
+- Check the logs for errors and warnings
+:::
+
+::::
+
+# Recap {background-color="#1a1a2e"}
+
+## The upgrade checklist
+
+| Instead of... | Do this |
+|---|---|
+| YOLO | Staging environment + tested backups + rollback plan |
+| In-place OS upgrade | New server, migrate |
+| Forgetting maintenance | Calendar + monitoring for certs, licenses, patching |
+| Never upgrading | Regular, boring upgrade cadence |
+| Skipping the release notes | Read every version's notes, especially Breaking / Deprecated |
+| Surprise! | Maintenance window, notify users, smoke test |
+
+## Thank you! 🎊
+
+Questions?
+
+<!-- TODO: add confetti trigger / contact info -->
+
+## Resources
+
+- Connect upgrade guide: <https://docs.posit.co/connect/admin/upgrade/>
+- Platform support: <https://docs.posit.co/platform-support.html>
+- Release notes: [Workbench](https://docs.posit.co/ide/news/) · [Connect](https://docs.posit.co/connect/news/) · [Package Manager](https://docs.posit.co/rspm/news/)
+
+<!-- TODO: add Workbench and Package Manager upgrade guides -->
