@@ -1,0 +1,92 @@
+---
+title: "5 ways not to upgrade Posit Team"
+author: "Lisa Anders"
+format:
+  revealjs:
+    smaller: true
+    width: 1800
+    height: 1050
+    embed-resources: false
+    preview-links: false
+    toc: false
+    menu: true
+    controls: true
+    slide-number: false
+    transition: fade
+    background-transition: fade
+    transition-speed: fast
+    theme: [night, custom.scss]
+    auto-stretch: false
+    center: false
+    footer: "Find the presentation code on github [here](https://github.com/leesahanders/server-hardening-for-kx)"
+    logo: /img/posit-logo-black-TM.png
+revealjs-plugins:
+  - editable
+  - confetti
+filters:
+  - editable
+editor: source
+---
+
+## 5 Ways Not To Upgrade Posit Team 
+
+Funny image placeholder 
+
+## YOLO
+
+No staging server, only production 
+No backups 
+
+## Upgrading a major version of the OS 
+
+Don't do this, spin up a new server and migrate. It breaks so many system libraries 
+
+## Forgetting to handle annual maintenance 
+
+You need to update the ssl certs and license annually, periodic patching. 
+
+## Just not upgrading, ever
+
+18 month support window. 
+
+
+
+## Backup stuff and formatting
+
+<!-- Tried themes: night, [dark, dark.scss], dracula (good but pink), moon (good but faint font), night is great but I want the title to be a different color -->
+
+<!-- Pro tip set width: 1800 and height: 1050 so the text looks reasonably sized -->
+
+<!-- I wrote it in math and I wrote it in bash and I will talk to it if you don't like either -->
+
+<!-- ![](/img/meme6.jpg){fig-align="center" width=50%} -->
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="50%"}
+- What is server hardening? 
+- What are the server hardening standards? 
+- Specific examples of server hardening tools / applications and how they interact with Posit Team: FIPS, selinux, apparmor, umask, firewalls, etc
+- Sprinkled throughout: Troubleshooting tips and tricks
+
+:::
+
+::: {.column width="50%"}
+![](/img/meme6.jpg){fig-align="center" width=100%}
+:::
+
+::::
+
+::: aside
+For an excellent companion presentation see [Sam Cofer's server hardening deck](https://pub.current.posit.team/connect/#/apps/eddbaf25-2a5e-4076-8038-fa070a11bf2f/access/343) (heavily drawn from for this presentation)
+:::
+
+<!-- Here's an interesting ticket talking about server hardening, CIS https://rstudioide.zendesk.com/agent/tickets/91031 and some interesting discussion here: https://positpbc.slack.com/archives/G02HSFX6BEF/p1709051356406839?thread_ts=1709050432.037669&cid=G02HSFX6BEF -->
+
+::: notes
+Press the S key (or use the Navigation Menu) to show the presentation speaker view (multiplex).
+:::
+
+<!-- ## What makes me an expert? {visibility="hidden"}-->

@@ -1,0 +1,13 @@
+/*-- scss:defaults --*/
+
+$red: #ff5555;
+$orange: #ffb86c;
+$yellow: #f1fa8c;
+$green: #50fa7b;
+$purple: #bd93f9;
+$cyan: #8be9fd;
+$headerorange: #e7ad52;
+
+// Override theme settings
+$presentation-heading-color: $headerorange !default;
+$presentation-list-bullet-color: $headerorange !default;
