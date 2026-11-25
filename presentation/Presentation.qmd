@@ -40,7 +40,7 @@ editor: source
 
 ![](/img/upgrades.jpg)
 
-Upgrades feel risky, so they get put off.
+Upgrades feel scary, so they are put off.
 :::
 
 ::: {.flow-arrow}
@@ -69,6 +69,34 @@ Welcome! Today is a tour of the upgrade mistakes I've seen (and maybe made). Eac
 I'm one of Posit's onboarding engineers. I've helped a lot of teams install, and a lot of teams recover. Today is a tour of the ways upgrades go wrong. Every story in here really happened (details changed to protect the innocent).
 :::
 
+## Quick poll 🗳️
+
+### When did you last upgrade your Posit products?
+
+:::::: {.card-grid .poll}
+
+::: {.card}
+**A.** In the last 3 months
+:::
+
+::: {.card}
+**B.** In the last year
+:::
+
+::: {.card}
+**C.** More than a year ago
+:::
+
+::: {.card}
+**D.** ...what's an upgrade? 😅
+:::
+
+::::::
+
+::: notes
+Run this as a webinar poll if the platform has one, otherwise ask people to answer in chat. Come back to the results in section 1: if lots of people answered C or D, that section is for them.
+:::
+
 ## How to ruin your weekend
 
 ![](/img/this is fine.jpg){fig-align="center" width=35%}
@@ -76,10 +104,10 @@ I'm one of Posit's onboarding engineers. I've helped a lot of teams install, and
 :::: {.columns}
 
 ::: {.column width="50%"}
-1. **YOLO: no staging, no backups**
-2. **The in-place OS upgrade**
-3. **Forgetting annual maintenance**
-4. **Just not upgrading, ever**
+1. **Just not upgrading, ever**
+2. **YOLO: no staging, no backups**
+3. **The in-place OS upgrade**
+4. **Forgetting annual maintenance**
 5. **Not reading the release notes**
 
 **Bonus:** Surprise! 🎁
@@ -101,7 +129,7 @@ Every story in this talk comes from a real reported issue. Names, companies, hos
 
 <br>
 
-If you recognize yourself: you're not alone, and that's the point. 💜
+If you recognize yourself: you're not alone. 💜
 
 # 1. Just not upgrading, ever {background-color="#17212b"}
 
@@ -117,9 +145,9 @@ If you recognize yourself: you're not alone, and that's the point. 💜
 
 ## Just not upgrading, ever: what goes wrong
 
-![](/img/if it aint broke.jpg){fig-align="center" width=34%}
+![](/img/if it aint broke.jpg){fig-align="center" width=37%}
 
-- **Out of support:** "Each Software Edition is eligible for Support Services from its YYYY.MM date for **18 months**."
+- **Out of support:** "Each Software Edition is eligible for Support Services from its YYYY.MM date for **18 months**." ([Posit Support Agreement](https://posit.co/about/support-agreement/))
 - Unpatched security vulnerabilities
 - New R, Python, and OS versions aren't supported on old releases
 - The eventual upgrade crosses **many** schema migrations and changes at once
@@ -154,21 +182,60 @@ Odd upgrade histories break in odd ways. The longer you wait, the less tested yo
 Also see the "migration that ate the disk" story from section 2 (YOLO). That's the never-upgrading story too: a large version jump plus years of metrics data.
 :::
 
+## Why upgrade? The good part
+
+You don't only upgrade to avoid problems. You also get good things:
+
+:::::: {.card-grid}
+
+::: {.card}
+[Security]{.label}
+
+Fixes for vulnerabilities, in the products and in the components they ship with.
+:::
+
+::: {.card}
+[New features]{.label}
+
+New IDEs, integrations, and admin tools your users are already asking about.
+:::
+
+::: {.card}
+[Support for newer tools]{.label}
+
+New R, Python, Quarto, and OS versions are supported on current releases.
+:::
+
+::: {.card}
+[Fixes you've been waiting for]{.label}
+
+That bug you reported or worked around may already be fixed.
+:::
+
+::::::
+
+::: {.lesson}
+**Need to convince a change board?** Give them reasons to upgrade, not just the risks of waiting. Check the release notes for what's new since your version.
+:::
+
 ## Just not upgrading, ever: do this instead
 
-![](/img/aint-broke-dont-fix-it.jpg){fig-align="center" width=40%}
+![](/img/aint-broke-dont-fix-it.jpg){fig-align="center" width=45%}
 
 - **Upgrade on a regular cadence** (e.g., quarterly), so each upgrade is small and boring
 - **Boring upgrades are the goal**
 - Practice makes the process routine: runbook, staging, backups, testing
 - Know your dates: <https://docs.posit.co/supported-versions/>
 
-
 # 2. YOLO {background-color="#17212b"}
+
+::: notes
+Pause for questions on the last section (about 1 minute) before moving on.
+:::
 
 ## YOLO: the anti-pattern
 
-![](/img/no-backup.jpg){fig-align="center" width=27%}
+![](/img/no-backup.jpg){fig-align="center" width=30%}
 
 > "We only have one server. It's production. It's fine."
 
@@ -193,6 +260,8 @@ Connect docs: create a backup of the Connect database and data directory before 
 :::
 
 ## Real-life examples: straight to production
+
+<!-- CUT? Section 2 has two story slides. "The migration that ate the disk" is the stronger one. Consider cutting this slide, or keep only the dnf upgrade card (the Monday-morning card is a Posit-internal server). -->
 
 ::: {.horror}
 [Real-life example]{.label}
@@ -242,7 +311,7 @@ Test the upgrade on a **copy of production-sized data**. A migration can need se
 
 ## YOLO: do this instead
 
-![](/img/yolo2.jpg){fig-align="center" width=27%}
+![](/img/yolo2.jpg){fig-align="center" width=35%}
 
 :::: {.columns}
 
@@ -265,59 +334,11 @@ Test the upgrade on a **copy of production-sized data**. A migration can need se
 
 ::::
 
-## Backups: the commands {visibility="hidden"}
-
-::: {.panel-tabset}
-
-### Workbench
-
-```bash
-sudo rstudio-server suspend-all   # suspend sessions if backing up user state
-sudo rstudio-server stop
-# back up:
-#   /etc/rstudio/
-#   /var/lib/rstudio-server/       (SQLite DB rstudio.sqlite + secure-cookie-key)
-#   /var/lib/rstudio-launcher/
-#   /var/log/rstudio/rstudio-server/   /var/log/rstudio/launcher/
-#   ~/.config/rstudio and ~/.local/share/rstudio for each user
-sudo rstudio-server start
-```
-
-PostgreSQL: follow PostgreSQL's own backup docs (e.g. `pg_dump`).
-
-### Connect
-
-```bash
-sudo systemctl stop rstudio-connect
-sudo tar cvpzf /mnt/backups/rstudio-connect.tar.gz /var/lib/rstudio-connect
-sudo cp -a /etc/rstudio-connect/rstudio-connect.gcfg /mnt/backups/
-sudo -u postgres pg_dump connect > connect-backup.sql   # if using PostgreSQL
-sudo systemctl start rstudio-connect
-```
-
-The encryption key is `/var/lib/rstudio-connect/db/secret.key`. If you lose it, all encrypted settings and content environment variables are lost.
-
-### Package Manager
-
-```bash
-sudo systemctl stop rstudio-pm
-# back up:
-#   /etc/rstudio-pm/
-#   /var/lib/rstudio-pm/    (incl. ALL files in db/ because of the WAL file)
-#   /var/lib/rstudio-pm/persistent/encryption/rstudio-pm.key
-#   any customized storage locations, and S3 if you use it
-sudo systemctl start rstudio-pm
-```
-
-⚠️ If the key is missing, Package Manager **silently generates a new one and starts normally**. Stored Git credentials can no longer be decrypted.
-
-:::
+# 3. In-place OS upgrades {background-color="#17212b"}
 
 ::: notes
-The Package Manager key behavior is the sneaky one: no error, no failure, just broken Git builders later.
+Pause for questions on the last section (about 1 minute) before moving on.
 :::
-
-# 3. In-place OS upgrades {background-color="#17212b"}
 
 ## In-place OS upgrades
 
@@ -330,7 +351,7 @@ The Package Manager key behavior is the sneaky one: no error, no failure, just b
 
 ## In-place OS upgrades: what goes wrong
 
-![](/img/error-message.png){fig-align="center" width=21%}
+![](/img/error-message.png){fig-align="center" width=26%}
 
 ::: {.terminal}
 [error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory]{.err}
@@ -351,6 +372,8 @@ This is the one that causes the most mysterious "it worked yesterday" errors. Lo
 :::
 
 ## Real-life examples: "Why is everything broken?"
+
+<!-- CUT? The "Even we're not immune" card is a Posit-internal story. It's strong (130 items, 43 owners), so keep it if you're happy owning it. Otherwise cut it and keep the first card. -->
 
 ::: {.horror}
 [Real-life example]{.label}
@@ -409,56 +432,11 @@ Read the migration docs: <https://docs.posit.co/how-to-guides/upgrade-os-and-pro
 Posit's guidance: **"An in-place upgrade of the Linux OS is not recommended."**
 :::
 
-## Migrating: the commands {visibility="hidden"}
-
-::: {.panel-tabset}
-
-### Workbench (users)
-
-Users delete `~/R` and `~/.local/lib/python3.*`, then rebuild project environments:
-
-```r
-unlink("renv/library", recursive = TRUE)
-.rs.restartR()
-renv::restore(rebuild = TRUE)
-```
-
-```bash
-source .venv/bin/activate
-python -m pip freeze > requirements-freeze.txt
-deactivate
-rm -rf .venv/
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip wheel setuptools
-python -m pip install -r requirements-freeze.txt
-```
-
-### Connect
-
-```bash
-sudo systemctl stop rstudio-connect
-sudo rsync -a /var/lib/rstudio-connect/ newserver:/var/lib/rstudio-connect
-```
-
-"If the Linux OS changed and the content runtime cache was not cleared, **content fails to render**."
-
-Don't upgrade Connect during the migration. Upgrade first, then migrate.
-
-### Package Manager
-
-```bash
-rspm evict --type=clear    # before migrating: clear caches
-sudo systemctl stop rstudio-pm
-```
-
-Must carry over: the encryption key, the **entire** packages storage class ("Copying only part of it is worse than not copying it at all"), and Git build logs.
-
-Don't carry over: the cache and mirrored CRAN/PyPI storage.
-
-:::
-
 # 4. Forgetting annual maintenance {background-color="#17212b"}
+
+::: notes
+Pause for questions on the last section (about 1 minute) before moving on.
+:::
 
 ## Forgetting annual maintenance
 
@@ -515,54 +493,11 @@ With a license expired past the grace period, the Workbench homepage **just spun
 openssl x509 -enddate -noout -in /path/to/cert.pem
 ```
 
-## Maintenance: the commands {visibility="hidden"}
-
-::: {.panel-tabset}
-
-### Licenses
-
-```bash
-sudo rstudio-server license-manager status                 # Workbench
-sudo /opt/rstudio-connect/bin/license-manager status       # Connect
-sudo /opt/rstudio-pm/bin/license-manager status            # Package Manager
-```
-
-Workbench warns users within 15 days of expiry. That's too late for a procurement cycle.
-
-Moving a license? **Deactivate it first:** `license-manager deactivate`
-
-### Certificates
-
-```bash
-# When does it expire?
-openssl x509 -enddate -noout -in /etc/rstudio/your_domain_name.crt
-```
-
-| Product | Configured in |
-|---|---|
-| Workbench | `/etc/rstudio/rserver.conf`: `ssl-certificate=`, `ssl-certificate-key=` |
-| Connect | `/etc/rstudio-connect/rstudio-connect.gcfg`: `[HTTPS] Certificate`, `Key` |
-| Package Manager | `/etc/rstudio-pm/rstudio-pm.gcfg`: `[HTTPS] Certificate`, `Key` |
-
-⚠️ Package Manager with `HTTPS.Permanent` (HSTS) can **lock users out completely** if the certificate expires.
-
-### Monitoring
-
-```bash
-# Workbench: set server-health-check-enabled=1 in rserver.conf, then:
-curl http://<server>:8787/health-check     # includes license-days-left
-
-# Connect
-curl -I http://<server>:3939/__ping__
-
-# Package Manager (/__ping__ does NOT reflect license state)
-curl -I http://<server>:4242/__api__/status    # HTTP 402 = no valid license
-rspm check-config                              # PASS/FAIL incl. license + DB
-```
-
-:::
-
 # 5. Not reading the release notes {background-color="#17212b"}
+
+::: notes
+Pause for questions on the last section (about 1 minute) before moving on.
+:::
 
 ## Not reading the release notes
 
@@ -609,7 +544,7 @@ pip saw packages on the global path and skipped installing them into the venv. T
 <br>
 
 ::: {.lesson}
-**Your customizations are your upgrade risk.** Keep a list, and check every release's notes against it.
+**Your customizations are your biggest risk during upgrades.** Keep a list, and check every release's notes against it.
 :::
 
 ::: notes
@@ -619,6 +554,8 @@ Connect 2026.01 changed how Python environments are named, which made every envi
 :::
 
 ## Real-life examples: more release-note casualties
+
+<!-- CUT? Section 5 has two story slides. "All the Python apps are down" is the stronger one. Consider cutting this slide and moving its lesson ("cheapest test you'll ever run") to the Python slide. -->
 
 ::: {.horror}
 [Invalid session scope 2]{.label}
@@ -662,7 +599,7 @@ The code-server story led to an open docs request to add a "start with a clean /
 ::: {.column width="50%"}
 - Read the notes for **every version** between where you are and where you're going, using the LLM overview can be helpful for compiling an easier to read summary!
 - Each release has **Breaking** and **Deprecated / Removed** sections, and upgrade notes if Posit expects a breaking change
-- Upgrade notes are **cumulative**: "start at the oldest version that is newer than your version and then follow up the page"
+- Upgrade notes are **cumulative**. The Workbench upgrade guide says to "start at the oldest version that is newer than your version from the list below, and then follow the instructions until the end of the page"
 - Keep a list of your customizations in your runbook
 - After upgrading, **check the logs** for deprecation warnings
 :::
@@ -686,6 +623,10 @@ The code-server story led to an open docs request to add a "start with a clean /
 
 # Bonus: Surprise! {background-color="#17212b"}
 
+::: notes
+Pause for questions on the last section (about 1 minute) before moving on.
+:::
+
 ## Bonus: Surprise! 🎁
 
 ![](/img/server-down-3.jpg){fig-align="center" width=35%}
@@ -698,6 +639,8 @@ The code-server story led to an open docs request to add a "start with a clean /
 - Or the sneakiest version: **the OS patch run upgrades the Posit product for you**
 
 ## Surprise!: what goes wrong
+
+<!-- CUT? Optional: this slide and "Bonus: Surprise!" overlap. You could merge them into one slide. -->
 
 ![](/img/let me in.jpg){fig-align="center" width=23%}
 
@@ -712,6 +655,8 @@ Even a smooth upgrade means some downtime. The Connect docs say under ~10 minute
 :::
 
 ## Real-life examples: the maintenance window
+
+<!-- CUT? Four boxes is a lot to read on a webinar. Consider cutting the "The database went first" card. -->
 
 ::: {.horror}
 [Monday morning, again]{.label}
@@ -777,96 +722,118 @@ The good version is from a hosted Posit service. Nobody reported an outage, beca
 
 ::::
 
-## Surprise: lock your versions {visibility="hidden"}
+# Recap {background-color="#17212b"}
 
-Connect and Package Manager are held at install "to prevent unintended upgrades." **Check that Workbench is too.**
-
-```bash
-# Ubuntu / Debian
-sudo apt-mark hold rstudio-server rstudio-connect rstudio-pm
-apt-mark showhold
-
-# RHEL
-sudo dnf install 'dnf-command(versionlock)'
-sudo dnf versionlock add rstudio-server rstudio-connect rstudio-pm
-sudo dnf versionlock list
-```
-
-Then upgrade **on purpose**:
-
-```bash
-sudo apt-mark unhold rstudio-server
-sudo apt-get update
-sudo apt-get install rstudio-server=<VERSION>
-sudo apt-mark hold rstudio-server
-```
-
-## Surprise: a polite Workbench upgrade {visibility="hidden"}
-
-```bash
-sudo rstudio-server active-sessions   # who's going to be affected?
-sudo rstudio-server suspend-all       # save session state
-sudo rstudio-server offline           # no new sessions during the upgrade
-
-# ... unhold, install <VERSION>, hold ...
-
-sudo rstudio-server restart
-sudo rstudio-server online
-```
-
-"The offline mode keeps users from trying to start new sessions while you're doing the upgrade."
-
-Package Manager has the same: `rspm offline` / `rspm online`
-
-## Surprise: test after every upgrade {visibility="hidden"}
-
-::: {.panel-tabset}
-
-### Workbench
-
-```bash
-sudo rstudio-server stop
-sudo rstudio-server verify-installation --verify-user=<USER>
-sudo rstudio-server restart
-sudo rstudio-launcher restart
-sudo rstudio-server status
-sudo rstudio-launcher status
-```
-
-Then log in and start a session in **each IDE** (RStudio, Positron, VS Code, Jupyter).
-
-### Connect
-
-```bash
-curl -I http://<server>:3939/__ping__          # HTTP 200
-sudo systemctl status rstudio-connect
-sudo tail -n 50 /var/log/rstudio/rstudio-connect/rstudio-connect.log
-```
-
-Then publish something, open key apps and APIs, and run a scheduled report.
-
-### Package Manager
-
-```bash
-rspm check-config --config /etc/rstudio-pm/rstudio-pm.gcfg
-curl -I http://<server>:4242/__cluster-health__
-sudo tail -n 50 /var/log/rstudio/rstudio-pm/rstudio-pm.log
-```
-
-Then install a package from each repo, R and Python.
-
-### Automate it
-
-```bash
-uv tool install posit-vip
-vip install
-vip verify --package-manager-url <product-url>
-vip report
-```
-
+::: notes
+Pause for questions on the last section (about 1 minute) before moving on.
 :::
 
-# Recap {background-color="#17212b"}
+## A good upgrade, start to finish
+
+:::::: {.timeline}
+
+::: {.step}
+[~4 weeks out]{.label}
+
+**Plan**
+
+- Pick a target version (latest patch)
+- Read every set of release notes in between
+- Check supported versions
+:::
+
+::: {.step}
+[~2 weeks out]{.label}
+
+**Rehearse**
+
+- Back up, then upgrade **staging** on a copy of prod data
+- Run the user-testing list
+- Write down every step
+:::
+
+::: {.step}
+[~1 week out]{.label}
+
+**Announce**
+
+- Maintenance window
+- What's new for users
+- Who to contact
+:::
+
+::: {.step}
+[Upgrade day]{.label}
+
+**Upgrade**
+
+- Stop services, back up
+- Unhold, upgrade, hold again
+- Smoke test, send the all-clear
+:::
+
+::: {.step}
+[The day after]{.label}
+
+**Watch**
+
+- Check the logs
+- Someone on call
+- Note what to improve next time
+:::
+
+::::::
+
+::: {.aside-note}
+**Running HA or Kubernetes?** Upgrade every node together (no mixed versions), and remember the Helm chart has its own version: the product version is its `appVersion`.
+:::
+
+::: notes
+Each of the five sections fixes one step of this timeline: release notes (Plan), YOLO (Rehearse), Surprise (Announce and Watch), OS upgrades and maintenance (Upgrade day).
+
+The commands for each step are in the cheat-sheet appendix at the end.
+:::
+
+## Upgrading more than one product
+
+:::::: {.card-grid}
+
+::: {.card}
+[Order]{.label}
+
+Posit doesn't require an order for in-place upgrades. When you **build new servers**, install Package Manager first: it's the package source for Workbench and Connect.
+:::
+
+::: {.card}
+[Publishing tools]{.label}
+
+Users' tools need upgrades too. Connect 2026.10 asks for **rsconnect 1.8.0+** and **rsconnect-python 1.28.1+**. Check the Breaking section for others.
+:::
+
+::: {.card}
+[Integrations]{.label}
+
+Test the connections **between** products on staging: publishing from Workbench to Connect, and installing from Package Manager in both.
+:::
+
+::: {.card}
+[HA and Kubernetes]{.label}
+
+Every node runs the **same version**: no mixed clusters. On Kubernetes, the Helm chart version picks the product version (`appVersion`), unless you set `image.tag`.
+:::
+
+::::::
+
+::: notes
+Sources:
+
+- Package Manager first: the OS and product upgrade how-to guide, Phase 1 ("Package Manager is installed first to configure it as the default repository source for both Workbench and Connect").
+- Client versions: Connect 2026.10.0 release notes, Breaking section.
+- Same version on every node: Connect upgrade docs ("You must upgrade all nodes; do not run different versions of Connect in one environment"), Workbench load-balancing docs, and Package Manager HA docs.
+- Helm: the rstudio/helm README. The chart version describes the chart, and the product version is in `appVersion`. The image tag defaults to `{appVersion}-{os}`.
+
+There's no published compatibility matrix between Workbench, Connect, and Package Manager. If a customer asks, the honest answer is "keep them all current and test them together on staging."
+:::
 
 ## Recap: The upgrade checklist
 
@@ -940,6 +907,36 @@ Turn this into the team's upgrade runbook. Each upgrade, the list gets better: a
 VIP is Posit's open-source test suite for verifying Posit Team installations. It runs basic checks against Workbench, Connect, and Package Manager: `uv tool install posit-vip`, then `vip verify`.
 :::
 
+## You don't have to do this alone
+
+:::::: {.card-grid}
+
+::: {.card}
+[Posit Support]{.label}
+
+Open a ticket **before** a big upgrade, not just when something breaks. Share your plan and your current versions.
+:::
+
+::: {.card}
+[Your Posit team]{.label}
+
+Ask your account team to review your upgrade plan, or to help with an OS migration.
+:::
+
+::: {.card}
+[Posit Academy]{.label}
+
+"Care and Feeding of your Posit Products": a ~30 minute course on keeping your servers healthy.
+:::
+
+::: {.card}
+[Take this with you]{.label}
+
+The slides, including the **cheat-sheet appendix** with all the commands, are on GitHub (link in the footer).
+:::
+
+::::::
+
 ## Thank you! 🎊
 
 ![](/img/deploying-new-release.jpg){fig-align="center" width=53%}
@@ -963,3 +960,244 @@ Press **C** for confetti 🎉 (it bursts from wherever the mouse pointer is).
 - Release notes: [Workbench](https://docs.posit.co/ide/news/) · [Connect](https://docs.posit.co/connect/news/) · [Package Manager](https://docs.posit.co/rspm/news/)
 - Platform support: <https://docs.posit.co/platform-support.html>
 - Take the Academy "Care and Feeding of your Posit Products" course (~30 min): <https://academy.posit.co/onboarding-care-and-feeding> 
+
+# Appendix: cheat sheet {background-color="#17212b"}
+
+Technical details and commands, for questions after the talk.
+
+## Cheat sheet: lock your versions
+
+Connect and Package Manager hold their package at install "to prevent unintended upgrades." For Workbench, the hold is an **optional** documented step, so check that it's there.
+
+```bash
+# Ubuntu / Debian
+sudo apt-mark hold rstudio-server rstudio-connect rstudio-pm
+apt-mark showhold
+
+# RHEL
+sudo dnf install 'dnf-command(versionlock)'
+sudo dnf versionlock add rstudio-server rstudio-connect rstudio-pm
+sudo dnf versionlock list
+```
+
+Then upgrade **on purpose**:
+
+```bash
+sudo apt-mark unhold rstudio-server
+sudo apt-get update
+sudo apt-get install rstudio-server=<VERSION>
+sudo apt-mark hold rstudio-server
+```
+
+## Cheat sheet: backups
+
+::: {.panel-tabset}
+
+### Workbench
+
+```bash
+sudo rstudio-server suspend-all   # suspend sessions if backing up user state
+sudo rstudio-server stop
+# back up:
+#   /etc/rstudio/
+#   /var/lib/rstudio-server/       (SQLite DB rstudio.sqlite + secure-cookie-key)
+#   /var/lib/rstudio-launcher/
+#   /var/log/rstudio/rstudio-server/   /var/log/rstudio/launcher/
+#   ~/.config/rstudio and ~/.local/share/rstudio for each user
+sudo rstudio-server start
+```
+
+PostgreSQL: follow PostgreSQL's own backup docs (e.g. `pg_dump`).
+
+### Connect
+
+```bash
+sudo systemctl stop rstudio-connect
+sudo tar cvpzf /mnt/backups/rstudio-connect.tar.gz /var/lib/rstudio-connect
+sudo cp -a /etc/rstudio-connect/rstudio-connect.gcfg /mnt/backups/
+sudo -u postgres pg_dump connect > connect-backup.sql   # if using PostgreSQL
+sudo systemctl start rstudio-connect
+```
+
+The encryption key is `/var/lib/rstudio-connect/db/secret.key`. If you lose it, all encrypted settings and content environment variables are lost.
+
+### Package Manager
+
+```bash
+sudo systemctl stop rstudio-pm
+# back up:
+#   /etc/rstudio-pm/
+#   /var/lib/rstudio-pm/    (incl. ALL files in db/ because of the WAL file)
+#   /var/lib/rstudio-pm/persistent/encryption/rstudio-pm.key
+#   any customized storage locations, and S3 if you use it
+sudo systemctl start rstudio-pm
+```
+
+⚠️ If the key is missing, Package Manager **silently generates a new one and starts normally**. Everything it encrypted, like stored Git credentials, can no longer be decrypted.
+
+:::
+
+::: notes
+The Package Manager key behavior is the sneaky one: no error, no failure, just broken Git builders later.
+:::
+
+## Cheat sheet: a polite Workbench upgrade
+
+```bash
+sudo rstudio-server active-sessions   # who's going to be affected?
+sudo rstudio-server suspend-all       # save session state
+sudo rstudio-server offline           # no new sessions during the upgrade
+
+# ... unhold, install <VERSION>, hold ...
+
+sudo rstudio-server restart
+sudo rstudio-server online
+```
+
+"The offline mode keeps users from trying to start new sessions while you're doing the upgrade."
+
+Package Manager has the same: `rspm offline` / `rspm online`
+
+## Cheat sheet: test after every upgrade
+
+::: {.panel-tabset}
+
+### Workbench
+
+```bash
+sudo rstudio-server stop
+sudo rstudio-server verify-installation --verify-user=<USER>
+sudo rstudio-server restart
+sudo rstudio-launcher restart
+sudo rstudio-server status
+sudo rstudio-launcher status
+```
+
+Then log in and start a session in **each IDE** (RStudio, Positron, VS Code, Jupyter).
+
+### Connect
+
+```bash
+curl -I http://<server>:3939/__ping__          # HTTP 200
+sudo systemctl status rstudio-connect
+sudo tail -n 50 /var/log/rstudio/rstudio-connect/rstudio-connect.log
+```
+
+Then publish something, open key apps and APIs, and run a scheduled report.
+
+### Package Manager
+
+```bash
+rspm check-config --config /etc/rstudio-pm/rstudio-pm.gcfg
+curl -I http://<server>:4242/__cluster-health__
+sudo tail -n 50 /var/log/rstudio/rstudio-pm/rstudio-pm.log
+```
+
+Then install a package from each repo, R and Python.
+
+### Automate it
+
+```bash
+uv tool install posit-vip
+vip install
+vip verify --package-manager-url <product-url>
+vip report
+```
+
+:::
+
+## Cheat sheet: migrating to a new server
+
+::: {.panel-tabset}
+
+### Workbench (users)
+
+Users delete `~/R` and `~/.local/lib/python3.*`, then rebuild project environments:
+
+```r
+unlink("renv/library", recursive = TRUE)
+.rs.restartR()
+renv::restore(rebuild = TRUE)
+```
+
+```bash
+source .venv/bin/activate
+python -m pip freeze > requirements-freeze.txt
+deactivate
+rm -rf .venv/
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip wheel setuptools
+python -m pip install -r requirements-freeze.txt
+```
+
+### Connect
+
+```bash
+sudo systemctl stop rstudio-connect
+sudo rsync -a /var/lib/rstudio-connect/ newserver:/var/lib/rstudio-connect
+```
+
+"If the Linux OS changed and the content runtime cache was not cleared, **content fails to render**."
+
+Connect's migration guide: "Do not upgrade Connect while performing any of these migration tasks. Perform a software upgrade first, then begin your migration."
+
+### Package Manager
+
+```bash
+rspm evict --type=clear    # before migrating: clear caches
+sudo systemctl stop rstudio-pm
+```
+
+Must carry over: the encryption key, the **entire** packages storage class ("Copying only part of it is worse than not copying it at all"), and Git build logs.
+
+Don't carry over: the cache and mirrored CRAN/PyPI storage.
+
+:::
+
+## Cheat sheet: licenses, certificates, and monitoring
+
+::: {.panel-tabset}
+
+### Licenses
+
+```bash
+sudo rstudio-server license-manager status                 # Workbench
+sudo /opt/rstudio-connect/bin/license-manager status       # Connect
+sudo /opt/rstudio-pm/bin/license-manager status            # Package Manager
+```
+
+Workbench warns users within 15 days of expiry. That's too late for a procurement cycle.
+
+Moving a license? **Deactivate it first:** `license-manager deactivate`
+
+### Certificates
+
+```bash
+# When does it expire?
+openssl x509 -enddate -noout -in /etc/rstudio/your_domain_name.crt
+```
+
+| Product | Configured in |
+|---|---|
+| Workbench | `/etc/rstudio/rserver.conf`: `ssl-certificate=`, `ssl-certificate-key=` |
+| Connect | `/etc/rstudio-connect/rstudio-connect.gcfg`: `[HTTPS] Certificate`, `Key` |
+| Package Manager | `/etc/rstudio-pm/rstudio-pm.gcfg`: `[HTTPS] Certificate`, `Key` |
+
+⚠️ Package Manager's `HTTPS.Permanent` turns on HSTS for 30 days. If the certificate then expires, **browsers won't let users fall back to HTTP**.
+
+### Monitoring
+
+```bash
+# Workbench: set server-health-check-enabled=1 in rserver.conf, then:
+curl http://<server>:8787/health-check     # includes license-days-left
+
+# Connect
+curl -I http://<server>:3939/__ping__
+
+# Package Manager (/__ping__ does NOT reflect license state)
+curl -I http://<server>:4242/__api__/status    # HTTP 402 = no valid license
+rspm check-config                              # PASS/FAIL incl. license + DB
+```
+
+:::
