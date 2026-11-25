@@ -1,0 +1,331 @@
+/*-- scss:defaults --*/
+
+// Posit brand look, hand-built (no extension needed).
+// Colors: https://posit-dev.github.io/brand-yml/inspiration/brand-guidelines/posit/
+// Fonts: Open Sans (light headings) + Source Code Pro, from Google Fonts.
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Source+Code+Pro:wght@400;500;600&display=swap');
+
+// ---- Brand palette
+$posit-blue:     #447099;
+$posit-orange:   #ee6331;
+$posit-teal:     #419599;
+$posit-green:    #729943;
+$posit-burgundy: #9a4665;
+$posit-gray:     #404041;
+$posit-black:    #151515;
+$posit-navy:     #17212b;   // dark slides (title, dividers)
+$posit-light:    #f4f6f8;   // light panels
+$posit-line:     #d5d9de;   // card borders
+
+// ---- reveal.js theme variables
+$body-bg: #ffffff;
+$body-color: $posit-gray;
+$link-color: $posit-blue;
+$selection-bg: rgba($posit-blue, 0.25);
+
+$font-family-sans-serif: "Open Sans", Arial, sans-serif;
+$font-family-monospace: "Source Code Pro", Menlo, monospace;
+$presentation-font-size-root: 38px;
+
+$presentation-heading-font: "Open Sans", Arial, sans-serif;
+$presentation-heading-color: $posit-black;
+$presentation-heading-font-weight: 300;
+$presentation-heading-text-transform: none;
+$presentation-heading-letter-spacing: -0.01em;
+$presentation-heading-line-height: 1.15;
+$presentation-h1-font-size: 2.6em;
+$presentation-h2-font-size: 1.9em;
+$presentation-h3-font-size: 1.2em;
+
+$presentation-list-bullet-color: $posit-blue;
+$code-color: $posit-blue;
+$code-block-bg: $posit-light;
+$code-block-border-color: $posit-line;
+
+/*-- scss:rules --*/
+
+// ---------------------------------------------------------------- type
+.reveal {
+  h3 { font-weight: 600; color: $posit-gray; }
+  strong { color: $posit-black; font-weight: 700; }
+  blockquote {
+    width: 100%;
+    background: none;
+    box-shadow: none;
+    border-left: 4px solid $posit-orange;
+    padding: 0.1em 0.9em;
+    margin: 0.6em 0;
+    font-style: italic;
+    font-weight: 300;
+    color: $posit-gray;
+  }
+  .footer { color: rgba($posit-gray, 0.8); font-size: 0.45em; }
+  .footer a { color: $posit-blue; }
+  aside, .aside { color: rgba($posit-gray, 0.8); }
+}
+
+// Monospace caps label above a heading (optional): [YOLO]{.eyebrow}
+.reveal .eyebrow {
+  display: block;
+  font-family: $font-family-monospace;
+  font-weight: 500;
+  font-size: 0.45em;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: $posit-gray;
+}
+
+// ---------------------------------------------------------------- dark slides
+// Title slide and section dividers. reveal.js adds .has-dark-background to any
+// slide whose data-background-color is dark, so text flips to white there.
+.reveal .slides section.has-dark-background,
+.reveal .slides section.has-dark-background * {
+  color: #ffffff;
+}
+.reveal .slides section.has-dark-background h1 {
+  font-weight: 300;
+  border-top: 2px solid rgba(255, 255, 255, 0.6);
+  padding-top: 0.4em;
+}
+.reveal .slides section.has-dark-background a { color: lighten($posit-blue, 25%); }
+
+// Title slide
+#title-slide {
+  text-align: left;
+  .title { font-weight: 300; font-size: 2.6em; line-height: 1.1; }
+  .subtitle { font-weight: 600; font-size: 1.1em; margin-top: 0.4em; }
+  .quarto-title-authors { justify-content: flex-start; margin-top: 2em; }
+  .quarto-title-author-name { font-size: 0.8em; }
+  .date { font-family: $font-family-monospace; font-size: 0.6em; }
+}
+
+// ---------------------------------------------------------------- story cards
+// Thin rounded card with a monospace caps label, like the brand deck's cards.
+@mixin posit-card($accent) {
+  border: 2px solid $accent;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0.6em 1.1em;
+  margin: 0.45em 0;
+  .label {
+    display: block;
+    font-family: $font-family-monospace;
+    font-weight: 500;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: $accent;
+    margin-bottom: 0.2em;
+  }
+  p:last-child { margin-bottom: 0; }
+}
+
+// Something went wrong
+.horror { @include posit-card($posit-burgundy); }
+
+// What to do instead
+.lesson {
+  @include posit-card($posit-green);
+  background: rgba($posit-green, 0.07);
+}
+
+// Fake terminal: stays dark on purpose
+.terminal {
+  background: $posit-navy;
+  color: #e6e6e6;
+  font-family: $font-family-monospace;
+  font-size: 0.75em;
+  padding: 0.8em 1.2em;
+  border-radius: 10px;
+  border-top: 26px solid #2c3a48;
+  .err { color: lighten($posit-orange, 8%); white-space: pre-wrap; }
+  p { margin: 0; }
+}
+
+// Meme placeholder (unused today)
+.meme {
+  border: 3px dashed $posit-orange;
+  border-radius: 12px;
+  padding: 1.2em;
+  text-align: center;
+  font-size: 0.9em;
+  .template { color: $posit-teal; font-weight: 700; display: block; margin-bottom: 0.6em; }
+  .caption  { font-family: Impact, "Anton", sans-serif; text-transform: uppercase; font-size: 1.3em; }
+}
+
+// ---------------------------------------------------------------- code
+.reveal div.sourceCode {
+  border: 1px solid $posit-line;
+  border-radius: 8px;
+  background: $posit-light;
+}
+.reveal div.sourceCode pre code, .reveal pre code {
+  font-size: 22px !important;
+  line-height: 1.4 !important;
+  max-height: 800px;
+}
+.reveal code { font-family: $font-family-monospace; }
+
+// Tabsets (hidden command slides)
+.reveal .panel-tabset .nav-tabs .nav-link {
+  font-family: $font-family-monospace;
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $posit-gray;
+}
+.reveal .panel-tabset .nav-tabs .nav-link.active { color: $posit-blue; border-bottom-color: $posit-blue; }
+
+// ---------------------------------------------------------------- tables
+.reveal table { font-size: 0.8em; }
+.reveal table th {
+  font-family: $font-family-monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85em;
+}
+
+// Recap checklist table
+.reveal .recap table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid $posit-line;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 0.95em;
+
+  thead th {
+    background: $posit-blue;
+    color: #ffffff;
+    padding: 0.6em 1em;
+    border: none;
+  }
+  tbody td {
+    padding: 0.55em 1em;
+    border: none;
+    border-top: 1px solid $posit-line;
+    vertical-align: middle;
+    color: $posit-gray;
+  }
+  tbody tr:nth-child(even) { background: $posit-light; }
+
+  tbody td:first-child {
+    color: $posit-burgundy;
+    font-weight: 600;
+    white-space: nowrap;
+    &::before { content: "✗  "; }
+  }
+  tbody td:last-child::before {
+    content: "✓  ";
+    color: $posit-green;
+    font-weight: 700;
+  }
+}
+
+// ---------------------------------------------------------------- chrome on dark slides
+// reveal.js puts .has-dark-background on the .reveal wrapper while a dark
+// slide is showing; the footer, logo, and controls live outside the slide.
+.reveal.has-dark-background {
+  .footer, .footer p { color: rgba(255, 255, 255, 0.75); }
+  .footer a { color: lighten($posit-blue, 30%); }
+  .slide-logo { filter: brightness(0) invert(1); }
+  .slide-menu-button .fa, .slide-menu-button a { color: rgba(255, 255, 255, 0.75); }
+}
+
+// ---------------------------------------------------------------- opening flow
+// [card] -> [card], then a goal banner
+.reveal .flow {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.8em;
+  margin-top: 0.4em;
+}
+.reveal .flow-card {
+  @include posit-card($posit-line);
+  background: $posit-light;
+  flex: 1 1 0;
+  max-width: 44%;
+  text-align: center;
+  .label { color: $posit-gray; }
+  img { width: 100%; height: 330px; object-fit: contain; margin: 0.3em 0; }
+  p { font-size: 0.95em; }
+}
+.reveal .flow-arrow {
+  align-self: center;
+  font-size: 2.6em;
+  font-weight: 300;
+  color: rgba($posit-gray, 0.6);
+}
+.reveal .goal {
+  margin: 0.8em auto 0;
+  max-width: 90%;
+  text-align: center;
+  font-size: 1.1em;
+  border-top: 1px solid $posit-line;
+  padding-top: 0.5em;
+}
+
+// ---------------------------------------------------------------- card grid
+// 2 x 2 grid of thin cards (Recap: User testing)
+.reveal .card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em 0.8em;
+  margin: 0.3em 0 0.4em;
+}
+.reveal .card {
+  @include posit-card($posit-blue);
+  font-size: 0.82em;
+  ul { margin: 0.1em 0 0 1.1em; }
+  li { margin: 0.05em 0; }
+}
+
+// ---------------------------------------------------------------- hex strip
+// Faint column of hex "sticker" outlines down the right edge (14 hexes).
+// Drawn on .slides (the scaled slide canvas), behind every slide's content.
+$hex-strip-light: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='1050' viewBox='0 0 170 1050'><polygon points='117.5,-44.8 166.0,-16.8 166.0,39.2 117.5,67.2 69.0,39.2 69.0,-16.8' fill='none' stroke='%23447099' stroke-opacity='0.10' stroke-width='2.5'/><polygon points='69.0,39.2 117.5,67.2 117.5,123.2 69.0,151.2 20.5,123.2 20.5,67.2' fill='none' stroke='%23447099' stroke-opacity='0.16' stroke-width='2.5'/><polygon points='117.5,123.2 166.0,151.2 166.0,207.2 117.5,235.2 69.0,207.2 69.0,151.2' fill='%23447099' fill-opacity='0.05' stroke='%23447099' stroke-opacity='0.08' stroke-width='2.5'/><polygon points='69.0,207.2 117.5,235.2 117.5,291.2 69.0,319.2 20.5,291.2 20.5,235.2' fill='none' stroke='%23447099' stroke-opacity='0.20' stroke-width='2.5'/><polygon points='117.5,291.2 166.0,319.2 166.0,375.2 117.5,403.2 69.0,375.2 69.0,319.2' fill='none' stroke='%23447099' stroke-opacity='0.12' stroke-width='2.5'/><polygon points='69.0,375.2 117.5,403.2 117.5,459.2 69.0,487.2 20.5,459.2 20.5,403.2' fill='none' stroke='%23447099' stroke-opacity='0.07' stroke-width='2.5'/><polygon points='117.5,459.2 166.0,487.2 166.0,543.2 117.5,571.2 69.0,543.2 69.0,487.2' fill='%23447099' fill-opacity='0.05' stroke='%23447099' stroke-opacity='0.18' stroke-width='2.5'/><polygon points='69.0,543.2 117.5,571.2 117.5,627.2 69.0,655.2 20.5,627.2 20.5,571.2' fill='none' stroke='%23447099' stroke-opacity='0.10' stroke-width='2.5'/><polygon points='117.5,627.2 166.0,655.2 166.0,711.2 117.5,739.2 69.0,711.2 69.0,655.2' fill='none' stroke='%23447099' stroke-opacity='0.14' stroke-width='2.5'/><polygon points='69.0,711.2 117.5,739.2 117.5,795.2 69.0,823.2 20.5,795.2 20.5,739.2' fill='none' stroke='%23447099' stroke-opacity='0.08' stroke-width='2.5'/><polygon points='117.5,795.2 166.0,823.2 166.0,879.2 117.5,907.2 69.0,879.2 69.0,823.2' fill='none' stroke='%23447099' stroke-opacity='0.16' stroke-width='2.5'/><polygon points='69.0,879.2 117.5,907.2 117.5,963.2 69.0,991.2 20.5,963.2 20.5,907.2' fill='%23447099' fill-opacity='0.05' stroke='%23447099' stroke-opacity='0.10' stroke-width='2.5'/><polygon points='117.5,963.2 166.0,991.2 166.0,1047.2 117.5,1075.2 69.0,1047.2 69.0,991.2' fill='none' stroke='%23447099' stroke-opacity='0.12' stroke-width='2.5'/><polygon points='69.0,1047.2 117.5,1075.2 117.5,1131.2 69.0,1159.2 20.5,1131.2 20.5,1075.2' fill='none' stroke='%23447099' stroke-opacity='0.10' stroke-width='2.5'/></svg>";
+$hex-strip-dark: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='1050' viewBox='0 0 170 1050'><polygon points='117.5,-44.8 166.0,-16.8 166.0,39.2 117.5,67.2 69.0,39.2 69.0,-16.8' fill='none' stroke='%23ffffff' stroke-opacity='0.10' stroke-width='2.5'/><polygon points='69.0,39.2 117.5,67.2 117.5,123.2 69.0,151.2 20.5,123.2 20.5,67.2' fill='none' stroke='%23ffffff' stroke-opacity='0.16' stroke-width='2.5'/><polygon points='117.5,123.2 166.0,151.2 166.0,207.2 117.5,235.2 69.0,207.2 69.0,151.2' fill='%23447099' fill-opacity='0.05' stroke='%23ffffff' stroke-opacity='0.08' stroke-width='2.5'/><polygon points='69.0,207.2 117.5,235.2 117.5,291.2 69.0,319.2 20.5,291.2 20.5,235.2' fill='none' stroke='%23ffffff' stroke-opacity='0.20' stroke-width='2.5'/><polygon points='117.5,291.2 166.0,319.2 166.0,375.2 117.5,403.2 69.0,375.2 69.0,319.2' fill='none' stroke='%23ffffff' stroke-opacity='0.12' stroke-width='2.5'/><polygon points='69.0,375.2 117.5,403.2 117.5,459.2 69.0,487.2 20.5,459.2 20.5,403.2' fill='none' stroke='%23ffffff' stroke-opacity='0.07' stroke-width='2.5'/><polygon points='117.5,459.2 166.0,487.2 166.0,543.2 117.5,571.2 69.0,543.2 69.0,487.2' fill='%23447099' fill-opacity='0.05' stroke='%23ffffff' stroke-opacity='0.18' stroke-width='2.5'/><polygon points='69.0,543.2 117.5,571.2 117.5,627.2 69.0,655.2 20.5,627.2 20.5,571.2' fill='none' stroke='%23ffffff' stroke-opacity='0.10' stroke-width='2.5'/><polygon points='117.5,627.2 166.0,655.2 166.0,711.2 117.5,739.2 69.0,711.2 69.0,655.2' fill='none' stroke='%23ffffff' stroke-opacity='0.14' stroke-width='2.5'/><polygon points='69.0,711.2 117.5,739.2 117.5,795.2 69.0,823.2 20.5,795.2 20.5,739.2' fill='none' stroke='%23ffffff' stroke-opacity='0.08' stroke-width='2.5'/><polygon points='117.5,795.2 166.0,823.2 166.0,879.2 117.5,907.2 69.0,879.2 69.0,823.2' fill='none' stroke='%23ffffff' stroke-opacity='0.16' stroke-width='2.5'/><polygon points='69.0,879.2 117.5,907.2 117.5,963.2 69.0,991.2 20.5,963.2 20.5,907.2' fill='%23447099' fill-opacity='0.05' stroke='%23ffffff' stroke-opacity='0.10' stroke-width='2.5'/><polygon points='117.5,963.2 166.0,991.2 166.0,1047.2 117.5,1075.2 69.0,1047.2 69.0,991.2' fill='none' stroke='%23ffffff' stroke-opacity='0.12' stroke-width='2.5'/><polygon points='69.0,1047.2 117.5,1075.2 117.5,1131.2 69.0,1159.2 20.5,1131.2 20.5,1075.2' fill='none' stroke='%23ffffff' stroke-opacity='0.10' stroke-width='2.5'/></svg>";
+
+// Attached to the full-window background layer, so it runs edge to edge and
+// sits above dark slide backgrounds but below slide content (.slides is z-index 1).
+.reveal .backgrounds::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  aspect-ratio: 170 / 1050;
+  z-index: 10;   // above per-slide background colors; .backgrounds stays below .slides
+  background: url($hex-strip-light) right top / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.reveal.has-dark-background .backgrounds::after {
+  background-image: url($hex-strip-dark);
+}
+
+// keep slide content clear of the strip
+.reveal .slides > section.slide.level2,
+.reveal .slides > section > section.slide.level2 {
+  padding-right: 110px;
+  box-sizing: border-box;
+}
+
+// ---------------------------------------------------------------- slide number
+// Small and quiet, bottom left next to the menu button
+.reveal .slide-number,
+.reveal.has-logo .slide-number {
+  top: auto !important;
+  left: 56px !important;
+  right: auto !important;
+  bottom: 12px !important;
+  background: none;
+  color: rgba($posit-gray, 0.7);
+  font-family: $font-family-monospace;
+  font-size: 18px;
+}
+.reveal.has-dark-background .slide-number { color: rgba(255, 255, 255, 0.6); }
+

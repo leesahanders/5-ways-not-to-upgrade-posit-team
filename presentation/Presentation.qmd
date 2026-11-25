@@ -1,6 +1,9 @@
 ---
 title: "5 ways not to upgrade Posit Team"
+subtitle: "…and what to do instead"
 author: "Lisa Anders"
+title-slide-attributes:
+  data-background-color: "#17212b"
 format:
   revealjs:
     smaller: true
@@ -11,15 +14,15 @@ format:
     toc: false
     menu: true
     controls: true
-    slide-number: false
+    slide-number: c
     transition: fade
     background-transition: fade
     transition-speed: fast
-    theme: [night, custom.scss]
+    theme: [default, posit.scss]
     auto-stretch: false
     center: false
     footer: "Find the presentation code on github [here](https://github.com/leesahanders/5-ways-not-to-upgrade-posit-team)"
-    logo: /img/posit-logo-black-TM.png
+    logo: img/posit-logo-black-TM.png
 revealjs-plugins:
   - editable
   - confetti
@@ -28,9 +31,35 @@ filters:
 editor: source
 ---
 
-## 5 Ways Not To Upgrade Posit Team
+## Easy, painless upgrades
 
-![](/img/upgrades.jpg){fig-align="center" width=45%} -> ![](/img/deploying-new-release.jpg){fig-align="center" width=45%}
+:::::: {.flow}
+
+::: {.flow-card .flow-before}
+[Today]{.label}
+
+![](/img/upgrades.jpg)
+
+Upgrades feel risky, so they get put off.
+:::
+
+::: {.flow-arrow}
+→
+:::
+
+::: {.flow-card .flow-after}
+[After this talk]{.label}
+
+![](/img/deploying-new-release.jpg)
+
+Upgrades are planned, tested, and boring.
+:::
+
+::::::
+
+::: {.goal}
+**My goal:** help you go forth and upgrade **with confidence**. We'll cover the five most common ways upgrades go wrong, and what to do instead.
+:::
 
 ::: notes
 Press the S key (or use the Navigation Menu) to show the speaker view.
@@ -65,7 +94,7 @@ For each one: the anti-pattern, what actually breaks, and what to do instead. At
 ## A note on the stories
 
 ::: {.horror}
-[Tales from the support queue]{.label}
+[Real-life examples]{.label}
 
 Every story in this talk comes from a real reported issue. Names, companies, hostnames, identifying numbers, even identifying stories have been removed. 
 :::
@@ -74,11 +103,11 @@ Every story in this talk comes from a real reported issue. Names, companies, hos
 
 If you recognize yourself: you're not alone, and that's the point. 💜
 
-# 1. Just not upgrading, ever {background-color="#1a1a2e"}
+# 1. Just not upgrading, ever {background-color="#17212b"}
 
 ##  Just not upgrading, ever 
 
-![](/img/programmerhumor.jpg){fig-align="center" width=100%}
+![](/img/programmerhumor.jpg){fig-align="center" width=23%}
 
 > "If it ain't broke, don't fix it."
 
@@ -88,7 +117,7 @@ If you recognize yourself: you're not alone, and that's the point. 💜
 
 ## Just not upgrading, ever: what goes wrong
 
-![](/img/if it aint broke.jpg.jpg){fig-align="center" width=100%}
+![](/img/if it aint broke.jpg){fig-align="center" width=34%}
 
 - **Out of support:** "Each Software Edition is eligible for Support Services from its YYYY.MM date for **18 months**."
 - Unpatched security vulnerabilities
@@ -99,16 +128,16 @@ If you recognize yourself: you're not alone, and that's the point. 💜
 Exact end-of-support dates: <https://docs.posit.co/supported-versions/>
 :::
 
-## Tales from the support queue: years in one jump
+## Real-life examples: years in one jump
 
 ::: {.horror}
-[From the queue]{.label}
+[Real-life example]{.label}
 
 A customer was still on Package Manager **1.2.0** years after it shipped, when the expired internal certificate broke their git builders. Support's first step: get them onto a current release.
 :::
 
 ::: {.horror}
-[From the queue]{.label}
+[Real-life example]{.label}
 
 After a Workbench upgrade from an older release on PostgreSQL, the admin **Users page showed "End of file"**. Existing users had a NULL in a column the new version required. The fix was hand-written SQL.
 
@@ -127,7 +156,7 @@ Also see the "migration that ate the disk" story from section 2 (YOLO). That's t
 
 ## Just not upgrading, ever: do this instead
 
-![](/img/aint-broke-dont-fix-it.jpg){fig-align="center" width=100%}
+![](/img/aint-broke-dont-fix-it.jpg){fig-align="center" width=40%}
 
 - **Upgrade on a regular cadence** (e.g., quarterly), so each upgrade is small and boring
 - **Boring upgrades are the goal**
@@ -135,11 +164,11 @@ Also see the "migration that ate the disk" story from section 2 (YOLO). That's t
 - Know your dates: <https://docs.posit.co/supported-versions/>
 
 
-# 2. YOLO {background-color="#1a1a2e"}
+# 2. YOLO {background-color="#17212b"}
 
 ## YOLO: the anti-pattern
 
-![](/img/no-backup.jpg){fig-align="center"}
+![](/img/no-backup.jpg){fig-align="center" width=27%}
 
 > "We only have one server. It's production. It's fine."
 
@@ -150,7 +179,7 @@ Also see the "migration that ate the disk" story from section 2 (YOLO). That's t
 
 ## YOLO: what goes wrong
 
-![](/img/yolo.jpg){fig-align="center"}
+![](/img/yolo.jpg){fig-align="center" width=28%}
 
 ### There is no undo button
 
@@ -163,10 +192,10 @@ Also see the "migration that ate the disk" story from section 2 (YOLO). That's t
 Connect docs: create a backup of the Connect database and data directory before upgrading, so you can roll back if you need to. The same idea applies to Workbench and Package Manager.
 :::
 
-## Tales from the support queue: straight to production
+## Real-life examples: straight to production
 
 ::: {.horror}
-[From the queue]{.label}
+[Real-life example]{.label}
 
 On RHEL with just-in-time user provisioning, an RPM upgrade of Workbench **removed a library symlink and stripped an entry from `/etc/nsswitch.conf`**. Workbench then failed at the next restart, and users were locked out.
 :::
@@ -187,10 +216,10 @@ The Monday-morning story is from a Posit-internal server. Use "even we hit this"
 TODO: ask Support for a customer story about unattended-upgrades silently upgrading a product. GitHub didn't have a strong one.
 :::
 
-## Tales from the support queue: the migration that ate the disk
+## Real-life examples: the migration that ate the disk
 
 ::: {.horror}
-[From the queue]{.label}
+[Real-life example]{.label}
 
 A customer jumped Connect forward about a year of releases, on PostgreSQL. They had **~300 million rows** of usage metrics and no retention policy.
 
@@ -207,11 +236,13 @@ A later migration changed metrics columns from `INTEGER` to `BIGINT`. One ~50 GB
 
 ::: {.lesson}
 Test the upgrade on a **copy of production-sized data**. A migration can need several times the disk you think.
+
+**Before you upgrade:** check you have free disk of several times your database size, and trim old usage data.
 :::
 
 ## YOLO: do this instead
 
-![](/img/yolo2.jpg){fig-align="center"}
+![](/img/yolo2.jpg){fig-align="center" width=27%}
 
 :::: {.columns}
 
@@ -286,11 +317,11 @@ sudo systemctl start rstudio-pm
 The Package Manager key behavior is the sneaky one: no error, no failure, just broken Git builders later.
 :::
 
-# 3. In-place OS upgrades {background-color="#1a1a2e"}
+# 3. In-place OS upgrades {background-color="#17212b"}
 
 ## In-place OS upgrades
 
-![](/img/upgrade-broken.jpg){fig-align="center"}
+![](/img/upgrade-broken.jpg){fig-align="center" width=40%}
 
 > "Ubuntu 22.04 → 24.04? There's a command for that!"
 
@@ -299,7 +330,7 @@ The Package Manager key behavior is the sneaky one: no error, no failure, just b
 
 ## In-place OS upgrades: what goes wrong
 
-![](/img/error-message.png){fig-align="center"}
+![](/img/error-message.png){fig-align="center" width=21%}
 
 ::: {.terminal}
 [error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory]{.err}
@@ -319,10 +350,10 @@ Upgrading the OS also updates system libraries. The updated system libraries are
 This is the one that causes the most mysterious "it worked yesterday" errors. Loads of packages break in ways that look unrelated.
 :::
 
-## Tales from the support queue: "Why is everything broken?"
+## Real-life examples: "Why is everything broken?"
 
 ::: {.horror}
-[From the queue]{.label}
+[Real-life example]{.label}
 
 A Connect customer upgraded the OS in place and **didn't purge Connect's R and Python runtime caches**. Those packages were built against the old system libraries. Content started failing to render.
 :::
@@ -338,7 +369,7 @@ The result: **130 content items, 43 owners**, each emailed by hand. A real conte
 <br>
 
 ::: {.lesson}
-Test-build **your real content** on the new OS before you switch. A sample won't catch everything.
+Test-build **your real content** on the new OS before you switch. The sample caught 5 broken packages. **The real content test caught 2 more.**
 :::
 
 ::: notes
@@ -427,11 +458,11 @@ Don't carry over: the cache and mirrored CRAN/PyPI storage.
 
 :::
 
-# 4. Forgetting annual maintenance {background-color="#1a1a2e"}
+# 4. Forgetting annual maintenance {background-color="#17212b"}
 
 ## Forgetting annual maintenance
 
-![](/img/server-maintenance.jpg){fig-align="center"}
+![](/img/server-maintenance.jpg){fig-align="center" width=35%}
 
 > "Why is everyone getting a certificate warning?"
 
@@ -442,16 +473,16 @@ Don't carry over: the cache and mirrored CRAN/PyPI storage.
 
 ## Forgetting annual maintenance: what goes wrong
 
-![](/img/server-down2.jpg){fig-align="center"}
+![](/img/server-down2.jpg){fig-align="center" width=25%}
 
 - **Expired certificate**: browsers block users, and publishing / API calls / integrations fail TLS checks
 - **Expired license**: the product stops working
 - **Unpatched OS**: security findings, audit failures, emergency patching on someone else's schedule
 
-## Tales from the support queue: the license in disguise
+## Real-life examples: the license in disguise
 
 ::: {.horror}
-[From the queue]{.label}
+[Real-life example]{.label}
 
 A customer reported Workbench was **sluggish** for about two weeks: slow session starts, slow project opens. Support was still investigating when they renewed their licenses, and the slowness **immediately stopped**.
 
@@ -467,12 +498,12 @@ With a license expired past the grace period, the Workbench homepage **just spun
 <br>
 
 ::: {.lesson}
-Don't wait for the product to tell you. **Monitor expiry yourself.**
+**License problems don't always look like license problems.** Slowness and spinning pages can mean an expiring license. Track the dates yourself, 60+ days out.
 :::
 
 ## Forgetting annual maintenance: do this instead
 
-![](/img/server-maintenance2.jpg){fig-align="center"}
+![](/img/server-maintenance2.jpg){fig-align="center" width=34%}
 
 - Put certificate and license expiry dates **on a shared calendar**, with reminders 60+ days out (procurement is slow!)
 - Point your monitoring at the health endpoints and alert on cert expiry
@@ -531,11 +562,11 @@ rspm check-config                              # PASS/FAIL incl. license + DB
 
 :::
 
-# 5. Not reading the release notes {background-color="#1a1a2e"}
+# 5. Not reading the release notes {background-color="#17212b"}
 
 ## Not reading the release notes
 
-![](/img/release-notes2.jpg){fig-align="center"}
+![](/img/release-notes2.jpg){fig-align="center" width=42%}
 
 > "It's just a version bump."
 
@@ -546,7 +577,7 @@ rspm check-config                              # PASS/FAIL incl. license + DB
 
 ## Not reading the release notes: what goes wrong
 
-![](/img/release-notes3.jpg){fig-align="center"}
+![](/img/release-notes3.jpg){fig-align="center" width=40%}
 
 - **Breaking changes**: behavior changes you needed to plan for
 - **Deprecated / removed config settings**: the server won't start, or quietly ignores your config
@@ -559,10 +590,10 @@ Connect docs: when upgrading from a much older version, reviewing the detailed r
 Connect docs also mention servers with very large instrumentation tables can fail upgrades when migrations run out of disk / WAL capacity. You only learn that by reading.
 :::
 
-## Tales from the support queue: all the Python apps are down
+## Real-life examples: all the Python apps are down
 
 ::: {.horror}
-[From the queue]{.label}
+[Real-life example]{.label}
 
 A Connect HA customer had a custom **supervisor script** that put global site-packages on `PYTHONPATH`. A new release changed how Python environments are named, so **every environment rebuilt** on upgrade.
 
@@ -578,16 +609,16 @@ pip saw packages on the global path and skipped installing them into the venv. T
 <br>
 
 ::: {.lesson}
-This one is easy to miss. The release changed Python environment handling, and nobody remembered the custom supervisor script. **Keep a list of your customizations, and check each release's notes against it.** A staging upgrade would have caught it before users did.
-
-The fix shipped in a later release: *"Python environment restores correctly discover packages installed on PYTHONPATH."* Read the notes for patch and later releases too. They often fix the exact problem you're about to hit.
+**Your customizations are your upgrade risk.** Keep a list, and check every release's notes against it.
 :::
 
 ::: notes
+The fix shipped in a later release. The Connect 2026.04.0 notes say: "Python environment restores correctly discover packages installed on PYTHONPATH." Read the notes for patch and later releases too. They often fix the exact problem you're about to hit.
+
 Connect 2026.01 changed how Python environments are named, which made every environment rebuild on upgrade. The PYTHONPATH fix is in the Connect 2026.04.0 release notes. Downgrading isn't supported, so the fix was to upgrade forward (or remove the global path from the supervisor script).
 :::
 
-## Tales from the support queue: more release-note casualties
+## Real-life examples: more release-note casualties
 
 ::: {.horror}
 [Invalid session scope 2]{.label}
@@ -604,15 +635,17 @@ On a Slurm cluster, an admin extracted new session components **over** the old i
 <br>
 
 ::: {.lesson}
-**We work hard to put changes like these in the release notes.** Here is what they said:
-
-- **Session scope:** the Workbench 2026.01.2 notes say *"Fixed an issue where sessions failed to launch with an 'Invalid session scope 2' error after upgrading from 2025.09 to 2026.01."* If you upgrade after a fix ships, the notes tell you to go straight to the latest patch.
-- **VS Code:** the notes list `pwb-code-server` as the new VS Code component. When a component name changes, install clean. Don't copy new files over old ones.
+**We work hard to put changes like these in the release notes.** Both fixes are there: go straight to the latest patch, and install clean when a component is renamed.
 
 Reading the notes is the cheapest test you'll ever run.
 :::
 
 ::: notes
+What the notes said:
+
+- Session scope: the Workbench 2026.01.2 notes say "Fixed an issue where sessions failed to launch with an 'Invalid session scope 2' error after upgrading from 2025.09 to 2026.01."
+- VS Code: the notes list `pwb-code-server` as the new VS Code component. When a component name changes, install clean. Don't copy new files over old ones.
+
 The session scope customer hit this before the fix existed. Their report is what produced the 2026.01.2 fix. The point for everyone else: check the latest patch release notes before you pick a target version.
 
 Upgrading staging with real user home directories would also have caught the session scope issue, because it came from old entries in users' project-id-mappings files.
@@ -622,7 +655,7 @@ The code-server story led to an open docs request to add a "start with a clean /
 
 ## Not reading the release notes: do this instead
 
-![](/img/release-notes.jpg){fig-align="center"}
+![](/img/release-notes.jpg){fig-align="center" width=22%}
 
 :::: {.columns}
 
@@ -651,11 +684,11 @@ The code-server story led to an open docs request to add a "start with a clean /
 
 ::::
 
-# Bonus: Surprise! {background-color="#1a1a2e"}
+# Bonus: Surprise! {background-color="#17212b"}
 
 ## Bonus: Surprise! 🎁
 
-![](/img/server-down-3.jpg){fig-align="center"}
+![](/img/server-down-3.jpg){fig-align="center" width=35%}
 
 > "It'll only take a few minutes, nobody will notice."
 
@@ -666,7 +699,7 @@ The code-server story led to an open docs request to add a "start with a clean /
 
 ## Surprise!: what goes wrong
 
-![](/img/let me in.jpg){fig-align="center"}
+![](/img/let me in.jpg){fig-align="center" width=23%}
 
 - Workbench sessions get killed mid-analysis, and unsaved work is lost
 - Connect apps and APIs go down during a demo / deadline / board meeting
@@ -678,7 +711,7 @@ The code-server story led to an open docs request to add a "start with a clean /
 Even a smooth upgrade means some downtime. The Connect docs say under ~10 minutes, and recommend scheduling during low-usage periods.
 :::
 
-## Tales from the support queue: the maintenance window
+## Real-life examples: the maintenance window
 
 ::: {.horror}
 [Monday morning, again]{.label}
@@ -718,7 +751,7 @@ The good version is from a hosted Posit service. Nobody reported an outage, beca
 
 ## Surprise!: do this instead
 
-![](/img/communication2.jpg){fig-align="center"}
+![](/img/communication2.jpg){fig-align="center" width=24%}
 
 :::: {.columns}
 
@@ -833,7 +866,7 @@ vip report
 
 :::
 
-# Recap {background-color="#1a1a2e"}
+# Recap {background-color="#17212b"}
 
 ## Recap: The upgrade checklist
 
@@ -852,9 +885,64 @@ vip report
 
 :::
 
+## Recap: User testing
+
+Run these on **staging** after every upgrade, before you touch production:
+
+:::::: {.card-grid}
+
+::: {.card}
+[Workbench · developers]{.label}
+
+- Log in with your real sign-in method (SSO, LDAP, ...)
+- Start a session in **each IDE** you use
+- Open an existing project and restore its `renv` / venv
+- Resume a suspended session
+- Launch a job (Slurm / Kubernetes, if used)
+:::
+
+::: {.card}
+[Connect · publishers & viewers]{.label}
+
+- Publish new content, and redeploy an existing item
+- Open your **most-used** apps, APIs, and reports
+- Run a scheduled report, and check the email
+- Test content that uses data connections or OAuth integrations
+:::
+
+::: {.card}
+[Package Manager]{.label}
+
+- Install R **and** Python packages from each repo
+- Confirm you get binaries for the right OS
+- Check curated, blocked, and authenticated repos
+- Run a Git builder
+:::
+
+::: {.card}
+[Admins]{.label}
+
+- Users, groups, and permissions look right
+- License status and health checks pass
+- Logs are clean: no new errors or deprecation warnings
+- Data sources and integrations connect
+:::
+
+::::::
+
+::: {.lesson}
+**Write the list down once, rerun it every upgrade.** Ask 2–3 power users to test their real work on staging. They know what "normal" looks like. You can automate the basics with [VIP](https://github.com/posit-dev/vip).
+:::
+
+::: notes
+Turn this into the team's upgrade runbook. Each upgrade, the list gets better: anything that broke last time becomes a new line.
+
+VIP is Posit's open-source test suite for verifying Posit Team installations. It runs basic checks against Workbench, Connect, and Package Manager: `uv tool install posit-vip`, then `vip verify`.
+:::
+
 ## Thank you! 🎊
 
-![](/img/deploying-new-release.jpg){fig-align="center"}
+![](/img/deploying-new-release.jpg){fig-align="center" width=53%}
 
 ::: {style="text-align: center;"}
 **Questions?**
