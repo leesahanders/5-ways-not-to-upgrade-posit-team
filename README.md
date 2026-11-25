@@ -27,6 +27,16 @@ Pro tip set width: 1800 and height: 1050 so the text looks reasonably small
 
 See: <https://github.com/quarto-dev/quarto-cli/issues/13006> 
 
+## Publishing
+
+Notes for the developer:
+
+This presentation is published to GH pages using the quarto CLI. 
+
+```
+quarto publish gh-pages Presentation.qmd
+```
+
 ## Quarto Presentations Inspiration
 
 Presentations: <https://quarto.org/docs/presentations/>

@@ -33,4 +33,4 @@ ENV/
 env.bak/
 venv.bak/
 # Internal-only notes
-presentation/story-sources.md
+presentation/story-sources-internal.md
