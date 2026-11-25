@@ -14,7 +14,6 @@ cd presentation
 quarto render Presentation.qmd
 quarto preview Presentation.qmd --no-browser --port 5503
 quarto preview Presentation.qmd --no-browser --no-watch-inputs --port 5503
-
 ```
 
 View it at `http://localhost:5503/Presentation.html` (or whatever port)

@@ -1009,6 +1009,8 @@ sudo rstudio-server start
 
 PostgreSQL: follow PostgreSQL's own backup docs (e.g. `pg_dump`).
 
+Guide: [Workbench backup guide](https://docs.posit.co/ide/server-pro/admin/server_management/backup_guide.html)
+
 ### Connect
 
 ```bash
@@ -1019,7 +1021,7 @@ sudo -u postgres pg_dump connect > connect-backup.sql   # if using PostgreSQL
 sudo systemctl start rstudio-connect
 ```
 
-The encryption key is `/var/lib/rstudio-connect/db/secret.key`. If you lose it, all encrypted settings and content environment variables are lost.
+Guide: [Connect backups](https://docs.posit.co/connect/admin/server-management/backups/)
 
 ### Package Manager
 
@@ -1033,30 +1035,97 @@ sudo systemctl stop rstudio-pm
 sudo systemctl start rstudio-pm
 ```
 
-⚠️ If the key is missing, Package Manager **silently generates a new one and starts normally**. Everything it encrypted, like stored Git credentials, can no longer be decrypted.
+Guide: [Package Manager backups](https://docs.posit.co/rspm/admin/server-management.html#backups)
 
+:::
+
+::: {.horror}
+[Back up the encryption key, every product]{.label}
+
+| Product | Key file (default) |
+|---|---|
+| Workbench | `/var/lib/rstudio-server/secure-cookie-key` |
+| Connect | `/var/lib/rstudio-connect/db/secret.key` |
+| Package Manager | `/var/lib/rstudio-pm/persistent/encryption/rstudio-pm.key` |
+
+Lose the key, and **everything encrypted with it can't be decrypted**: passwords in the config files, Connect's content environment variables, Package Manager's Git credentials. Package Manager won't even show an error: it makes a new key and starts normally.
 :::
 
 ::: notes
-The Package Manager key behavior is the sneaky one: no error, no failure, just broken Git builders later.
+Workbench: `rstudio-server encrypt-password` encrypts with the secure-cookie-key (Workbench encryption docs). Connect: the encryption key docs say encrypted configuration values and content environment variables are lost. Package Manager: the encryption appendix says it silently generates a new key, and a stored Git credential can't be reconstructed.
+
+On load-balanced or HA setups, every node needs the same key.
 :::
 
-## Cheat sheet: a polite Workbench upgrade
+## Cheat sheet: upgrade commands
+
+::: {.panel-tabset}
+
+### Workbench
 
 ```bash
-sudo rstudio-server active-sessions   # who's going to be affected?
-sudo rstudio-server suspend-all       # save session state
-sudo rstudio-server offline           # no new sessions during the upgrade
+sudo rstudio-server active-sessions      # who will be affected?
+sudo rstudio-server suspend-all          # save session state
+sudo rstudio-server offline              # no new sessions during the upgrade
 
-# ... unhold, install <VERSION>, hold ...
+# Ubuntu / Debian                        # RHEL
+sudo apt-mark unhold rstudio-server      # sudo dnf versionlock delete rstudio-server
+sudo apt-get update                      # sudo dnf install rstudio-server-<VERSION>
+sudo apt-get install rstudio-server=<VERSION>
+sudo apt-mark hold rstudio-server        # sudo dnf versionlock add rstudio-server
 
 sudo rstudio-server restart
 sudo rstudio-server online
 ```
 
-"The offline mode keeps users from trying to start new sessions while you're doing the upgrade."
+[Upgrade guide](https://docs.posit.co/ide/server-pro/admin/upgrade/upgrade.html) · [Release notes](https://docs.posit.co/ide/news/)
 
-Package Manager has the same: `rspm offline` / `rspm online`
+### Connect
+
+```bash
+# Ubuntu / Debian
+sudo apt-mark unhold rstudio-connect
+sudo apt update
+sudo apt upgrade rstudio-connect
+sudo apt-mark hold rstudio-connect
+
+# RHEL
+sudo dnf versionlock delete rstudio-connect
+sudo dnf makecache
+sudo dnf upgrade rstudio-connect
+sudo dnf versionlock add rstudio-connect
+```
+
+[Upgrade guide](https://docs.posit.co/connect/admin/upgrade/) · [Release notes](https://docs.posit.co/connect/news/)
+
+### Package Manager
+
+```bash
+sudo rspm offline                        # optional: stop installs during the upgrade
+
+# Ubuntu / Debian
+sudo apt-mark unhold rstudio-pm
+sudo apt-get update
+sudo apt-get upgrade rstudio-pm=<VERSION>
+sudo apt-mark hold rstudio-pm
+
+# RHEL
+sudo dnf versionlock delete rstudio-pm
+sudo dnf upgrade rstudio-pm-<VERSION>
+sudo dnf versionlock add rstudio-pm
+
+sudo rspm online
+```
+
+[Upgrade guide](https://docs.posit.co/rspm/admin/server-management.html#upgrading) · [Release notes](https://docs.posit.co/rspm/news/)
+
+:::
+
+::: notes
+Commands are from each product's upgrade docs (checked 2026-11-25). Workbench: "The offline mode keeps users from trying to start new sessions while you're doing the upgrade." The Package Manager offline/online lines are optional; its upgrade docs don't require them.
+
+SLES uses zypper (removelock, update, addlock): see each guide.
+:::
 
 ## Cheat sheet: test after every upgrade
 
@@ -1065,10 +1134,6 @@ Package Manager has the same: `rspm offline` / `rspm online`
 ### Workbench
 
 ```bash
-sudo rstudio-server stop
-sudo rstudio-server verify-installation --verify-user=<USER>
-sudo rstudio-server restart
-sudo rstudio-launcher restart
 sudo rstudio-server status
 sudo rstudio-launcher status
 ```
@@ -1104,6 +1169,12 @@ vip verify --package-manager-url <product-url>
 vip report
 ```
 
+[VIP on GitHub](https://github.com/posit-dev/vip): Posit's open-source test suite for verifying Posit Team installs.
+
+:::
+
+::: {.lesson}
+**VIP checks the basics. It doesn't replace user testing.** Still run the [user-testing list](#/recap-user-testing) with real users and real content.
 :::
 
 ## Cheat sheet: migrating to a new server
@@ -1153,6 +1224,47 @@ Must carry over: the encryption key, the **entire** packages storage class ("Cop
 
 Don't carry over: the cache and mirrored CRAN/PyPI storage.
 
+:::
+
+Guides: [Upgrade OS and migrate Posit Team](https://docs.posit.co/how-to-guides/upgrade-os-and-product/) · [Workbench backup guide](https://docs.posit.co/ide/server-pro/admin/server_management/backup_guide.html) (covers what to copy for a migration) · [Connect migration](https://docs.posit.co/connect/admin/server-management/migration/) · [Package Manager migration](https://docs.posit.co/rspm/admin/server-management.html#migration)
+
+
+
+## Cheat sheet: database passwords
+
+Moving to PostgreSQL, or changing the database password? Store the password **encrypted** in the config file.
+
+::: {.panel-tabset}
+
+### Workbench
+
+```bash
+sudo rstudio-server encrypt-password
+# prints "Encrypting with key from /var/lib/rstudio-server/secure-cookie-key"
+```
+
+[Database migration](https://docs.posit.co/ide/server-pro/admin/database/migration.html) · [Encrypting configuration values](https://docs.posit.co/ide/server-pro/admin/hardening/encryption.html#step-re-encrypt-configuration-values)
+
+### Connect
+
+```bash
+sudo /opt/rstudio-connect/bin/rscadmin encrypt-config-value
+```
+
+[Database migration](https://docs.posit.co/connect/admin/database/migration/) · [rscadmin CLI](https://docs.posit.co/connect/admin/appendix/cli/#rscadmin)
+
+### Package Manager
+
+```bash
+sudo rspm encrypt
+```
+
+[Database migration](https://docs.posit.co/rspm/admin/migration.html) · [PostgreSQL setup](https://docs.posit.co/rspm/admin/database.html#database-postgres) · [Encrypting settings](https://docs.posit.co/rspm/admin/appendix/encryption.html#package-manager-encrypt)
+
+:::
+
+::: {.lesson}
+The encrypted value only works with **that server's encryption key**. Moving servers? Bring the key, or encrypt the password again on the new server.
 :::
 
 ## Cheat sheet: licenses, certificates, and monitoring

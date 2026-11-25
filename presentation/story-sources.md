@@ -61,6 +61,12 @@ Checked against the docs on 2026-11-25 (Connect 2026.11.1, Package Manager 2026.
 - Workbench 2026.01.2: "Fixed an issue where sessions failed to launch with an 'Invalid session scope 2' error after upgrading from 2025.09 to 2026.01" ([Workbench release notes](https://docs.posit.co/ide/news/))
 - Connect banner: the Logged In Warning custom message; the older `Server.LoggedInWarning` setting is deprecated ([Connect configuration](https://docs.posit.co/connect/admin/appendix/configuration/))
 
+**Cheat-sheet appendix**
+- Upgrade commands: [Workbench upgrade](https://docs.posit.co/ide/server-pro/admin/upgrade/upgrade.html), [Connect upgrade](https://docs.posit.co/connect/admin/upgrade/), [Package Manager upgrading](https://docs.posit.co/rspm/admin/server-management.html#upgrading)
+- Backups: [Workbench](https://docs.posit.co/ide/server-pro/admin/server_management/backup_guide.html), [Connect](https://docs.posit.co/connect/admin/server-management/backups/), [Package Manager](https://docs.posit.co/rspm/admin/server-management.html#backups)
+- Encrypting passwords: `rstudio-server encrypt-password` uses the secure-cookie-key ([Workbench encryption](https://docs.posit.co/ide/server-pro/admin/hardening/encryption.html#step-re-encrypt-configuration-values)); `/opt/rstudio-connect/bin/rscadmin encrypt-config-value` ([Connect CLI](https://docs.posit.co/connect/admin/appendix/cli/#rscadmin)); `rspm encrypt` ([Package Manager encryption](https://docs.posit.co/rspm/admin/appendix/encryption.html#package-manager-encrypt))
+- Database migration: [Workbench](https://docs.posit.co/ide/server-pro/admin/database/migration.html), [Connect](https://docs.posit.co/connect/admin/database/migration/), [Package Manager](https://docs.posit.co/rspm/admin/migration.html) and [PostgreSQL setup](https://docs.posit.co/rspm/admin/database.html#database-postgres)
+
 **Tools**
 - Helm chart versions are separate from product versions (`appVersion`, `image.tag`): [rstudio/helm](https://github.com/rstudio/helm)
 - VIP, Posit's test suite for verifying Posit Team installs: [posit-dev/vip](https://github.com/posit-dev/vip)
