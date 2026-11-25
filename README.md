@@ -2,6 +2,8 @@
 
 Use the c to make some 🎊!
 
+Access it for yourself at: <https://leesahanders.github.io/5-ways-not-to-upgrade-posit-team/#/title-slide> 
+
 ## Setup 
 
 From a terminal in positron run `quarto install tinytex` and `quarto install chromium` and `quarto add emilhvitfeldt/quarto-revealjs-editable` and `quarto add ArthurData/quarto-confetti` 
