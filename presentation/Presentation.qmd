@@ -30,7 +30,7 @@ editor: source
 
 ## 5 Ways Not To Upgrade Posit Team
 
-![](/img/upgrades.jpg){fig-align="center" width=100%}
+![](/img/upgrades.jpg){fig-align="center" width=45%} -> ![](/img/deploying-new-release.jpg){fig-align="center" width=45%}
 
 ::: notes
 Press the S key (or use the Navigation Menu) to show the speaker view.
@@ -64,12 +64,10 @@ For each one: the anti-pattern, what actually breaks, and what to do instead. At
 
 ## A note on the stories
 
-<!-- not so Posit-ive stories, maybe a different name? -->
-
 ::: {.horror}
-[Tales from the server room]{.label}
+[Tales from the support queue]{.label}
 
-Every horror story in this talk comes from a real reported issue. Names, companies, hostnames, identifying numbers, even identifying stories have been removed. 
+Every story in this talk comes from a real reported issue. Names, companies, hostnames, identifying numbers, even identifying stories have been removed. 
 :::
 
 <br>
@@ -101,16 +99,16 @@ If you recognize yourself: you're not alone, and that's the point. 💜
 Exact end-of-support dates: <https://docs.posit.co/supported-versions/>
 :::
 
-## Tales from the server room: years in one jump
+## Tales from the support queue: years in one jump
 
 ::: {.horror}
-[Horror story]{.label}
+[From the queue]{.label}
 
 A customer was still on Package Manager **1.2.0** years after it shipped, when the expired internal certificate broke their git builders. Support's first step: get them onto a current release.
 :::
 
 ::: {.horror}
-[Horror story]{.label}
+[From the queue]{.label}
 
 After a Workbench upgrade from an older release on PostgreSQL, the admin **Users page showed "End of file"**. Existing users had a NULL in a column the new version required. The fix was hand-written SQL.
 
@@ -124,7 +122,7 @@ Odd upgrade histories break in odd ways. The longer you wait, the less tested yo
 :::
 
 ::: notes
-Also see the "migration that ate the disk" story from section 1. That's the never-upgrading story too: a large version jump plus years of metrics data.
+Also see the "migration that ate the disk" story from section 2 (YOLO). That's the never-upgrading story too: a large version jump plus years of metrics data.
 :::
 
 ## Just not upgrading, ever: do this instead
@@ -146,7 +144,7 @@ Also see the "migration that ate the disk" story from section 1. That's the neve
 > "We only have one server. It's production. It's fine."
 
 - No staging environment, only production
-- No backups (or backups nobody has ever tested
+- No backups (or backups nobody has ever tested)
 - No rollback plan
 - Upgrade run straight from the terminal, live, on a Friday afternoon
 
@@ -165,10 +163,10 @@ Also see the "migration that ate the disk" story from section 1. That's the neve
 Connect docs: create a backup of the Connect database and data directory before upgrading, so you can roll back if you need to. The same idea applies to Workbench and Package Manager.
 :::
 
-## Tales from the server room: a routine `dnf upgrade`
+## Tales from the support queue: straight to production
 
 ::: {.horror}
-[Horror story]{.label}
+[From the queue]{.label}
 
 On RHEL with just-in-time user provisioning, an RPM upgrade of Workbench **removed a library symlink and stripped an entry from `/etc/nsswitch.conf`**. Workbench then failed at the next restart, and users were locked out.
 :::
@@ -179,10 +177,8 @@ On RHEL with just-in-time user provisioning, an RPM upgrade of Workbench **remov
 After a Workbench upgrade on Kubernetes, users' **suspended sessions crashed on resume**. The new server passed a flag the old session images didn't understand.
 :::
 
-<!-- moved from a differeent section because they fit better here. They also need a lesson. The problem is they just upgraded production without having adequate internal testing. -->
-
 ::: {.lesson}
-
+Both of these would have shown up in a staging environment that matched production: same OS, same auth setup, same session images. **Staging is where you find out, not your users.**
 :::
 
 ::: notes
@@ -191,10 +187,10 @@ The Monday-morning story is from a Posit-internal server. Use "even we hit this"
 TODO: ask Support for a customer story about unattended-upgrades silently upgrading a product. GitHub didn't have a strong one.
 :::
 
-## Tales from the server room: the migration that ate the disk
+## Tales from the support queue: the migration that ate the disk
 
 ::: {.horror}
-[Horror story]{.label}
+[From the queue]{.label}
 
 A customer jumped Connect forward about a year of releases, on PostgreSQL. They had **~300 million rows** of usage metrics and no retention policy.
 
@@ -300,7 +296,6 @@ The Package Manager key behavior is the sneaky one: no error, no failure, just b
 
 - `do-release-upgrade` (or `leapp` on RHEL) on the server running Posit Team
 - Upgrading the OS *and* the Posit products in the same maintenance window
-- This is the one that causes the most mysterious "it worked yesterday" errors. Loads of packages break in ways that look unrelated.
 
 ## In-place OS upgrades: what goes wrong
 
@@ -324,10 +319,10 @@ Upgrading the OS also updates system libraries. The updated system libraries are
 This is the one that causes the most mysterious "it worked yesterday" errors. Loads of packages break in ways that look unrelated.
 :::
 
-## Tales from the server room: "Why is everything broken?"
+## Tales from the support queue: "Why is everything broken?"
 
 ::: {.horror}
-[Horror story]{.label}
+[From the queue]{.label}
 
 A Connect customer upgraded the OS in place and **didn't purge Connect's R and Python runtime caches**. Those packages were built against the old system libraries. Content started failing to render.
 :::
@@ -378,8 +373,6 @@ The second story is from a Posit-internal server. Use "even we hit this" framing
 ::::
 
 Read the migration docs: <https://docs.posit.co/how-to-guides/upgrade-os-and-product/>
-
-*Bonus: you get a free rollback plan, because the old server is still there.*
 
 ::: {.lesson}
 Posit's guidance: **"An in-place upgrade of the Linux OS is not recommended."**
@@ -455,10 +448,10 @@ Don't carry over: the cache and mirrored CRAN/PyPI storage.
 - **Expired license**: the product stops working
 - **Unpatched OS**: security findings, audit failures, emergency patching on someone else's schedule
 
-## Tales from the server room: the license in disguise
+## Tales from the support queue: the license in disguise
 
 ::: {.horror}
-[Horror story]{.label}
+[From the queue]{.label}
 
 A customer reported Workbench was **sluggish** for about two weeks: slow session starts, slow project opens. Support was still investigating when they renewed their licenses, and the slowness **immediately stopped**.
 
@@ -566,10 +559,10 @@ Connect docs: when upgrading from a much older version, reviewing the detailed r
 Connect docs also mention servers with very large instrumentation tables can fail upgrades when migrations run out of disk / WAL capacity. You only learn that by reading.
 :::
 
-## Tales from the server room: all the Python apps are down
+## Tales from the support queue: all the Python apps are down
 
 ::: {.horror}
-[Horror story]{.label}
+[From the queue]{.label}
 
 A Connect HA customer had a custom **supervisor script** that put global site-packages on `PYTHONPATH`. A new release changed how Python environments are named, so **every environment rebuilt** on upgrade.
 
@@ -582,15 +575,19 @@ pip saw packages on the global path and skipped installing them into the venv. T
 **Every Python app was down.** Their first thought was a downgrade, which isn't supported.
 :::
 
-<br> 
-
-<!-- Hmm this takeaway should be better. This is kinda shamey for something that sounds like it would be easy to miss actually. -->
+<br>
 
 ::: {.lesson}
-When the release notes say "environments will be rebuilt," that's your cue, especially with custom scripts.
+This one is easy to miss. The release changed Python environment handling, and nobody remembered the custom supervisor script. **Keep a list of your customizations, and check each release's notes against it.** A staging upgrade would have caught it before users did.
+
+The fix shipped in a later release: *"Python environment restores correctly discover packages installed on PYTHONPATH."* Read the notes for patch and later releases too. They often fix the exact problem you're about to hit.
 :::
 
-## Tales from the server room: more release-note casualties
+::: notes
+Connect 2026.01 changed how Python environments are named, which made every environment rebuild on upgrade. The PYTHONPATH fix is in the Connect 2026.04.0 release notes. Downgrading isn't supported, so the fix was to upgrade forward (or remove the global path from the supervisor script).
+:::
+
+## Tales from the support queue: more release-note casualties
 
 ::: {.horror}
 [Invalid session scope 2]{.label}
@@ -604,12 +601,23 @@ After a Workbench upgrade, sessions failed with `Invalid session scope 2 - is th
 On a Slurm cluster, an admin extracted new session components **over** the old install. That release had replaced `code-server` with `pwb-code-server`. The old binary kept getting launched with flags that no longer existed, and **VS Code broke across the cluster.**
 :::
 
-<br> 
-
-<!-- Hmm same for this takeaway, it should be better.I want a more realistic "here is what was in the release notes and how they could have figured out how to fix it", more of a "we try really hard to have informative release notes" vibe -->
+<br>
 
 ::: {.lesson}
-Upgrade staging with **real user home directories**, and install clean when components are renamed.
+**We work hard to put changes like these in the release notes.** Here is what they said:
+
+- **Session scope:** the Workbench 2026.01.2 notes say *"Fixed an issue where sessions failed to launch with an 'Invalid session scope 2' error after upgrading from 2025.09 to 2026.01."* If you upgrade after a fix ships, the notes tell you to go straight to the latest patch.
+- **VS Code:** the notes list `pwb-code-server` as the new VS Code component. When a component name changes, install clean. Don't copy new files over old ones.
+
+Reading the notes is the cheapest test you'll ever run.
+:::
+
+::: notes
+The session scope customer hit this before the fix existed. Their report is what produced the 2026.01.2 fix. The point for everyone else: check the latest patch release notes before you pick a target version.
+
+Upgrading staging with real user home directories would also have caught the session scope issue, because it came from old entries in users' project-id-mappings files.
+
+The code-server story led to an open docs request to add a "start with a clean /usr/lib/rstudio-server" warning to the Slurm install page.
 :::
 
 ## Not reading the release notes: do this instead
@@ -670,9 +678,43 @@ Upgrade staging with **real user home directories**, and install clean when comp
 Even a smooth upgrade means some downtime. The Connect docs say under ~10 minutes, and recommend scheduling during low-usage periods.
 :::
 
-## Tales from the server room
+## Tales from the support queue: the maintenance window
 
-<!-- we should find a new story for here - the vibe I'm going for is "user reports outage but it was really just routine maintenance" and hammering home how important having internal communication pathways is so that users are aware of upcoming changes -->
+::: {.horror}
+[Monday morning, again]{.label}
+
+Another team patched the Connect servers over the weekend. On Monday, Shiny apps and scheduled reports were failing. Nobody had told the Connect admins, and nobody had told the users.
+
+> "We either had to manually go and check each app to see it works or users reported this to us."
+:::
+
+::: {.horror}
+[The database went first]{.label}
+
+The PostgreSQL database behind Connect went down for planned maintenance, and Connect failed with it. Support's advice: **stop Connect during planned database work, and warn users first** with a banner in Connect.
+:::
+
+::: {.lesson}
+[The good version]{.label}
+
+An instructor saw an announced maintenance window for a **Saturday**, the same day as their students' **finals**. Because it was announced, they could ask for a change ahead of time. The maintenance moved to **Sunday**, and nobody's exam was interrupted.
+:::
+
+<br>
+
+::: {.lesson}
+Maintenance only surprises people who weren't told. **Announce it early, in a channel your users actually read**, and give them a way to say "not that day."
+:::
+
+::: notes
+These are three separate real tickets, not one combined story.
+
+Maintenance isn't always yours: OS patching, database maintenance, and network changes by other teams count too. Get onto their change calendar.
+
+Connect banner: the Logged In Warning custom message (Custom Messaging page). The older `Server.LoggedInWarning` setting is deprecated.
+
+The good version is from a hosted Posit service. Nobody reported an outage, because the maintenance was announced and the customer could plan around it. Ask the room: how would your users find out about maintenance today?
+:::
 
 ## Surprise!: do this instead
 
@@ -795,24 +837,34 @@ vip report
 
 ## Recap: The upgrade checklist
 
+::: {.recap}
+
 | Instead of... | Do this |
 |---|---|
+| Never upgrading | Regular, boring upgrade cadence. Know your support dates. |
 | YOLO | Staging with production-sized data, tested backups (incl. encryption keys) |
 | In-place OS upgrade | New server, migrate, rebuild packages and caches |
 | Forgetting maintenance | Calendar and monitoring for certs, licenses, and patching |
-| Never upgrading | Regular, boring upgrade cadence. Know your support dates. |
 | Skipping the release notes | Read every version's notes, especially Breaking and Deprecated |
 | Surprise! | Version holds, maintenance window, notify users, smoke test |
 
-<!-- Can we format this table more nicely? It is showing up with just horizontal lines and Id like it to just look better -->
+: {tbl-colwidths="[30,70]"}
+
+:::
 
 ## Thank you! 🎊
 
 ![](/img/deploying-new-release.jpg){fig-align="center"}
 
-Questions?
+::: {style="text-align: center;"}
+**Questions?**
 
-<!-- TODO: add confetti trigger / contact info -->
+Lisa Anders · <lisa.anders@posit.co>
+:::
+
+::: notes
+Press **C** for confetti 🎉 (it bursts from wherever the mouse pointer is).
+:::
 
 ## Resources
 
@@ -822,3 +874,4 @@ Questions?
 - Backups: [Workbench](https://docs.posit.co/ide/server-pro/admin/server_management/backup_guide.html) · [Connect](https://docs.posit.co/connect/admin/server-management/backups/) · [Package Manager](https://docs.posit.co/rspm/admin/server-management.html#backups)
 - Release notes: [Workbench](https://docs.posit.co/ide/news/) · [Connect](https://docs.posit.co/connect/news/) · [Package Manager](https://docs.posit.co/rspm/news/)
 - Platform support: <https://docs.posit.co/platform-support.html>
+- Take the Academy "Care and Feeding of your Posit Products" course (~30 min): <https://academy.posit.co/onboarding-care-and-feeding> 

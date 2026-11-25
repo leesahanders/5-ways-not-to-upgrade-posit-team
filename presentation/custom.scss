@@ -40,6 +40,54 @@ $presentation-list-bullet-color: $headerorange !default;
   background: rgba(80, 250, 123, 0.08);
   padding: 0.6em 1.2em;
   border-radius: 6px;
+  margin-top: 0.4em;
+  .label { color: $green; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8em; }
+}
+
+// Recap checklist table
+.reveal .recap table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 2px solid rgba($headerorange, 0.6);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 0.95em;
+
+  thead th {
+    background: $headerorange;
+    color: #1a1a2e;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.6em 1em;
+    border: none;
+  }
+
+  tbody td {
+    padding: 0.55em 1em;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    vertical-align: middle;
+  }
+
+  tbody tr:nth-child(odd)  { background: rgba(255, 255, 255, 0.04); }
+  tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.09); }
+
+  // "Instead of..." column: the anti-pattern
+  tbody td:first-child {
+    color: $red;
+    font-weight: 700;
+    white-space: nowrap;
+    &::before { content: "✗  "; }
+  }
+
+  // "Do this" column: the fix
+  tbody td:last-child::before {
+    content: "✓  ";
+    color: $green;
+    font-weight: 700;
+  }
 }
 
 // Fake terminal output for the funny error screenshots
