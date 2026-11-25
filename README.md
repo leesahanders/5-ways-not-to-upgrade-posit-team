@@ -8,6 +8,7 @@ From a terminal in positron run `quarto install tinytex` and `quarto install chr
 
 Preview it: 
 ```
+cd presentation
 quarto render Presentation.qmd
 quarto preview Presentation.qmd --no-browser --port 5503
 quarto preview Presentation.qmd --no-browser --no-watch-inputs --port 5503

@@ -30,7 +30,7 @@ editor: source
 
 ## 5 Ways Not To Upgrade Posit Team
 
-![](/img/upgrades.jpg){fig-align="center"}
+![](/img/upgrades.jpg){fig-align="center" width=100%}
 
 ::: notes
 Press the S key (or use the Navigation Menu) to show the speaker view.
@@ -42,7 +42,7 @@ I'm one of Posit's onboarding engineers. I've helped a lot of teams install, and
 
 ## How to ruin your weekend
 
-![](/img/this is fine.jpg){fig-align="center"}
+![](/img/this is fine.jpg){fig-align="center" width=35%}
 
 :::: {.columns}
 
@@ -64,6 +64,8 @@ For each one: the anti-pattern, what actually breaks, and what to do instead. At
 
 ## A note on the stories
 
+<!-- not so Posit-ive stories, maybe a different name? -->
+
 ::: {.horror}
 [Tales from the server room]{.label}
 
@@ -74,11 +76,72 @@ Every horror story in this talk comes from a real reported issue. Names, compani
 
 If you recognize yourself: you're not alone, and that's the point. 💜
 
-# 1. YOLO {background-color="#1a1a2e"}
+# 1. Just not upgrading, ever {background-color="#1a1a2e"}
+
+##  Just not upgrading, ever 
+
+![](/img/programmerhumor.jpg){fig-align="center" width=100%}
+
+> "If it ain't broke, don't fix it."
+
+- "We'll upgrade when something breaks"
+- Still running a version from years ago
+- Every upgrade is huge and scary, so it keeps getting pushed back... which makes it bigger and scarier
+
+## Just not upgrading, ever: what goes wrong
+
+![](/img/if it aint broke.jpg.jpg){fig-align="center" width=100%}
+
+- **Out of support:** "Each Software Edition is eligible for Support Services from its YYYY.MM date for **18 months**."
+- Unpatched security vulnerabilities
+- New R, Python, and OS versions aren't supported on old releases
+- The eventual upgrade crosses **many** schema migrations and changes at once
+
+::: aside
+Exact end-of-support dates: <https://docs.posit.co/supported-versions/>
+:::
+
+## Tales from the server room: years in one jump
+
+::: {.horror}
+[Horror story]{.label}
+
+A customer was still on Package Manager **1.2.0** years after it shipped, when the expired internal certificate broke their git builders. Support's first step: get them onto a current release.
+:::
+
+::: {.horror}
+[Horror story]{.label}
+
+After a Workbench upgrade from an older release on PostgreSQL, the admin **Users page showed "End of file"**. Existing users had a NULL in a column the new version required. The fix was hand-written SQL.
+
+The suspected cause: an earlier **upgrade → downgrade → upgrade** had left the schema inconsistent.
+:::
+
+<br>
+
+::: {.lesson}
+Odd upgrade histories break in odd ways. The longer you wait, the less tested your path is, and the more the backup matters.
+:::
+
+::: notes
+Also see the "migration that ate the disk" story from section 1. That's the never-upgrading story too: a large version jump plus years of metrics data.
+:::
+
+## Just not upgrading, ever: do this instead
+
+![](/img/aint-broke-dont-fix-it.jpg){fig-align="center" width=100%}
+
+- **Upgrade on a regular cadence** (e.g., quarterly), so each upgrade is small and boring
+- **Boring upgrades are the goal**
+- Practice makes the process routine: runbook, staging, backups, testing
+- Know your dates: <https://docs.posit.co/supported-versions/>
+
+
+# 2. YOLO {background-color="#1a1a2e"}
 
 ## YOLO: the anti-pattern
 
-![](/img/yolo.jpg){fig-align="center"}
+![](/img/no-backup.jpg){fig-align="center"}
 
 > "We only have one server. It's production. It's fine."
 
@@ -89,6 +152,8 @@ If you recognize yourself: you're not alone, and that's the point. 💜
 
 ## YOLO: what goes wrong
 
+![](/img/yolo.jpg){fig-align="center"}
+
 ### There is no undo button
 
 - Upgrades run **database schema migrations**. Once they run, the old version may not work with the new schema.
@@ -98,6 +163,32 @@ If you recognize yourself: you're not alone, and that's the point. 💜
 
 ::: notes
 Connect docs: create a backup of the Connect database and data directory before upgrading, so you can roll back if you need to. The same idea applies to Workbench and Package Manager.
+:::
+
+## Tales from the server room: a routine `dnf upgrade`
+
+::: {.horror}
+[Horror story]{.label}
+
+On RHEL with just-in-time user provisioning, an RPM upgrade of Workbench **removed a library symlink and stripped an entry from `/etc/nsswitch.conf`**. Workbench then failed at the next restart, and users were locked out.
+:::
+
+::: {.horror}
+[Monday morning]{.label}
+
+After a Workbench upgrade on Kubernetes, users' **suspended sessions crashed on resume**. The new server passed a flag the old session images didn't understand.
+:::
+
+<!-- moved from a differeent section because they fit better here. They also need a lesson. The problem is they just upgraded production without having adequate internal testing. -->
+
+::: {.lesson}
+
+:::
+
+::: notes
+The Monday-morning story is from a Posit-internal server. Use "even we hit this" framing or drop it.
+
+TODO: ask Support for a customer story about unattended-upgrades silently upgrading a product. GitHub didn't have a strong one.
 :::
 
 ## Tales from the server room: the migration that ate the disk
@@ -122,8 +213,9 @@ A later migration changed metrics columns from `INTEGER` to `BIGINT`. One ~50 GB
 Test the upgrade on a **copy of production-sized data**. A migration can need several times the disk you think.
 :::
 
-
 ## YOLO: do this instead
+
+![](/img/yolo2.jpg){fig-align="center"}
 
 :::: {.columns}
 
@@ -198,7 +290,9 @@ sudo systemctl start rstudio-pm
 The Package Manager key behavior is the sneaky one: no error, no failure, just broken Git builders later.
 :::
 
-## In-place OS upgrade
+# 3. In-place OS upgrades {background-color="#1a1a2e"}
+
+## In-place OS upgrades
 
 ![](/img/upgrade-broken.jpg){fig-align="center"}
 
@@ -206,12 +300,17 @@ The Package Manager key behavior is the sneaky one: no error, no failure, just b
 
 - `do-release-upgrade` (or `leapp` on RHEL) on the server running Posit Team
 - Upgrading the OS *and* the Posit products in the same maintenance window
+- This is the one that causes the most mysterious "it worked yesterday" errors. Loads of packages break in ways that look unrelated.
 
-::: {.lesson}
-Posit's guidance: **"An in-place upgrade of the Linux OS is not recommended."**
+## In-place OS upgrades: what goes wrong
+
+![](/img/error-message.png){fig-align="center"}
+
+::: {.terminal}
+[error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory]{.err}
 :::
 
-## In-place OS upgrade: what goes wrong
+<br>
 
 Upgrading the OS also updates system libraries. The updated system libraries are often incompatible with older R and Python package versions, package binaries installed under the old OS, or other software.
 
@@ -220,10 +319,6 @@ Upgrading the OS also updates system libraries. The updated system libraries are
 - Compiled packages in user libraries and **Connect runtime caches** are built for the old OS.
 - Package Manager binaries are built **per OS version**. Repo URLs pointing at the old OS now give you the wrong binaries.
 - The kicker: problems are "often intermittent, difficult to troubleshoot, and could arise **months after the upgrade**."
-
-::: {.terminal}
-[error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory]{.err}
-:::
 
 ::: notes
 This is the one that causes the most mysterious "it worked yesterday" errors. Loads of packages break in ways that look unrelated.
@@ -245,6 +340,8 @@ Moving a Connect server from Ubuntu 22.04 to 26.04, a test build of package samp
 The result: **130 content items, 43 owners**, each emailed by hand. A real content test then found two more failures (`systemfonts`, `duckdb`) that the sample missed.
 :::
 
+<br>
+
 ::: {.lesson}
 Test-build **your real content** on the new OS before you switch. A sample won't catch everything.
 :::
@@ -253,7 +350,7 @@ Test-build **your real content** on the new OS before you switch. A sample won't
 The second story is from a Posit-internal server. Use "even we hit this" framing or drop it for a customer audience.
 :::
 
-## In-place OS upgrade: do this instead
+## In-place OS upgrades: do this instead
 
 **Build a new server and migrate.** Posit's two-phase method:
 
@@ -280,9 +377,13 @@ The second story is from a Posit-internal server. Use "even we hit this" framing
 
 ::::
 
-<https://docs.posit.co/how-to-guides/upgrade-os-and-product/>
+Read the migration docs: <https://docs.posit.co/how-to-guides/upgrade-os-and-product/>
 
-Bonus: you get a free rollback plan, because the old server is still there.
+*Bonus: you get a free rollback plan, because the old server is still there.*
+
+::: {.lesson}
+Posit's guidance: **"An in-place upgrade of the Linux OS is not recommended."**
+:::
 
 ## Migrating: the commands {visibility="hidden"}
 
@@ -333,9 +434,11 @@ Don't carry over: the cache and mirrored CRAN/PyPI storage.
 
 :::
 
+# 4. Forgetting annual maintenance {background-color="#1a1a2e"}
+
 ## Forgetting annual maintenance
 
-![](/img/blessing.jpg){fig-align="center"}
+![](/img/server-maintenance.jpg){fig-align="center"}
 
 > "Why is everyone getting a certificate warning?"
 
@@ -346,28 +449,11 @@ Don't carry over: the cache and mirrored CRAN/PyPI storage.
 
 ## Forgetting annual maintenance: what goes wrong
 
+![](/img/server-down2.jpg){fig-align="center"}
+
 - **Expired certificate**: browsers block users, and publishing / API calls / integrations fail TLS checks
 - **Expired license**: the product stops working
 - **Unpatched OS**: security findings, audit failures, emergency patching on someone else's schedule
-
-## Tales from the server room: the certificate nobody knew existed
-
-::: {.horror}
-[Horror story]{.label}
-
-A customer's Package Manager Git builds suddenly started failing:
-
-::: {.terminal}
-[error submitting job ... to job launcher: Post "https://localhost:5561/v1/jobs":
-x509: certificate has expired or is not yet valid]{.err}
-:::
-
-Package Manager makes a self-signed internal certificate for its Launcher at startup. It's valid for **one year**. A server that ran without a restart for a year broke its own builds.
-:::
-
-::: {.lesson}
-Track **every** certificate, including the ones the product makes for itself.
-:::
 
 ## Tales from the server room: the license in disguise
 
@@ -385,11 +471,15 @@ A customer reported Workbench was **sluggish** for about two weeks: slow session
 With a license expired past the grace period, the Workbench homepage **just spun forever**. There was no "your license expired" message.
 :::
 
+<br>
+
 ::: {.lesson}
 Don't wait for the product to tell you. **Monitor expiry yourself.**
 :::
 
 ## Forgetting annual maintenance: do this instead
+
+![](/img/server-maintenance2.jpg){fig-align="center"}
 
 - Put certificate and license expiry dates **on a shared calendar**, with reminders 60+ days out (procurement is slow!)
 - Point your monitoring at the health endpoints and alert on cert expiry
@@ -448,57 +538,7 @@ rspm check-config                              # PASS/FAIL incl. license + DB
 
 :::
 
-# 4. Just not upgrading, ever {background-color="#1a1a2e"}
-
-##  Just not upgrading, ever 
-
-![](/img/aint-broke-dont-fix-it.jpg){fig-align="center"}
-
-> "If it ain't broke, don't fix it."
-
-- "We'll upgrade when something breaks"
-- Still running a version from years ago
-- Every upgrade is huge and scary, so it keeps getting pushed back... which makes it bigger and scarier
-
-## Never upgrading: what goes wrong
-
-- **Out of support:** "Each Software Edition is eligible for Support Services from its YYYY.MM date for **18 months**."
-- Unpatched security vulnerabilities
-- New R, Python, and OS versions aren't supported on old releases
-- The eventual upgrade crosses **many** schema migrations and changes at once
-
-::: aside
-Exact end-of-support dates: <https://docs.posit.co/supported-versions/>
-:::
-
-::: {.horror}
-[Horror story]{.label}
-
-A customer was still on Package Manager **1.2.0** years after it shipped, when the expired internal certificate broke their builds (see section 3). Support's first step: get them onto a current release.
-:::
-
-::: {.horror}
-[Horror story]{.label}
-
-After a Workbench upgrade from an older release on PostgreSQL, the admin **Users page showed "End of file"**. Existing users had a NULL in a column the new version required. The fix was hand-written SQL.
-
-The suspected cause: an earlier **upgrade → downgrade → upgrade** had left the schema inconsistent.
-:::
-
-::: {.lesson}
-Odd upgrade histories break in odd ways. The longer you wait, the less tested your path is, and the more the backup matters.
-:::
-
-::: notes
-Also see the "migration that ate the disk" story from section 1. That's the never-upgrading story too: a large version jump plus years of metrics data.
-:::
-
-## Never upgrading: do this instead
-
-- **Upgrade on a regular cadence** (e.g., quarterly), so each upgrade is small and boring
-- **Boring upgrades are the goal**
-- Practice makes the process routine: runbook, staging, backups, testing
-- Know your dates: <https://docs.posit.co/supported-versions/>
+# 5. Not reading the release notes {background-color="#1a1a2e"}
 
 ## Not reading the release notes
 
@@ -512,6 +552,8 @@ Also see the "migration that ate the disk" story from section 1. That's the neve
 - Customizations nobody remembers (supervisor scripts, profiles, custom config)
 
 ## Not reading the release notes: what goes wrong
+
+![](/img/release-notes3.jpg){fig-align="center"}
 
 - **Breaking changes**: behavior changes you needed to plan for
 - **Deprecated / removed config settings**: the server won't start, or quietly ignores your config
@@ -540,6 +582,10 @@ pip saw packages on the global path and skipped installing them into the venv. T
 **Every Python app was down.** Their first thought was a downgrade, which isn't supported.
 :::
 
+<br> 
+
+<!-- Hmm this takeaway should be better. This is kinda shamey for something that sounds like it would be easy to miss actually. -->
+
 ::: {.lesson}
 When the release notes say "environments will be rebuilt," that's your cue, especially with custom scripts.
 :::
@@ -558,26 +604,24 @@ After a Workbench upgrade, sessions failed with `Invalid session scope 2 - is th
 On a Slurm cluster, an admin extracted new session components **over** the old install. That release had replaced `code-server` with `pwb-code-server`. The old binary kept getting launched with flags that no longer existed, and **VS Code broke across the cluster.**
 :::
 
+<br> 
+
+<!-- Hmm same for this takeaway, it should be better.I want a more realistic "here is what was in the release notes and how they could have figured out how to fix it", more of a "we try really hard to have informative release notes" vibe -->
+
 ::: {.lesson}
 Upgrade staging with **real user home directories**, and install clean when components are renamed.
 :::
 
-## Not reading the release notes: what you'd have found
-
-Each release has **Breaking** and **Deprecated / Removed** sections. Real examples:
-
-- Workbench: "Workbench **fails to start**, or rejects a reload, when a numeric setting in `/etc/rstudio/profiles` has a non-numeric value."
-- Workbench: `/etc/rstudio/positron.conf` gets backed up to `.bak` on upgrade, and you have to merge your customizations back in
-- Connect: servers with very large metrics tables "may experience upgrade failures when schema migrations run out of disk space"
-- Workbench upgrade notes are **cumulative**: "start at the oldest version that is newer than your version ... and then follow the instructions until the end of the page"
-
 ## Not reading the release notes: do this instead
+
+![](/img/release-notes.jpg){fig-align="center"}
 
 :::: {.columns}
 
 ::: {.column width="50%"}
 - Read the notes for **every version** between where you are and where you're going, using the LLM overview can be helpful for compiling an easier to read summary!
-- Search for **Breaking**, **Deprecated / Removed**, and upgrade notes
+- Each release has **Breaking** and **Deprecated / Removed** sections, and upgrade notes if Posit expects a breaking change
+- Upgrade notes are **cumulative**: "start at the oldest version that is newer than your version and then follow up the page"
 - Keep a list of your customizations in your runbook
 - After upgrading, **check the logs** for deprecation warnings
 :::
@@ -599,6 +643,8 @@ Each release has **Breaking** and **Deprecated / Removed** sections. Real exampl
 
 ::::
 
+# Bonus: Surprise! {background-color="#1a1a2e"}
+
 ## Bonus: Surprise! 🎁
 
 ![](/img/server-down-3.jpg){fig-align="center"}
@@ -612,6 +658,8 @@ Each release has **Breaking** and **Deprecated / Removed** sections. Real exampl
 
 ## Surprise!: what goes wrong
 
+![](/img/let me in.jpg){fig-align="center"}
+
 - Workbench sessions get killed mid-analysis, and unsaved work is lost
 - Connect apps and APIs go down during a demo / deadline / board meeting
 - Scheduled reports fail or are skipped
@@ -622,31 +670,13 @@ Each release has **Breaking** and **Deprecated / Removed** sections. Real exampl
 Even a smooth upgrade means some downtime. The Connect docs say under ~10 minutes, and recommend scheduling during low-usage periods.
 :::
 
-## Tales from the server room: a routine `dnf upgrade`
+## Tales from the server room
 
-::: {.horror}
-[Horror story]{.label}
-
-On RHEL with just-in-time user provisioning, an RPM upgrade of Workbench **removed a library symlink and stripped an entry from `/etc/nsswitch.conf`**. Workbench then failed at the next restart, and users were locked out.
-
-Anyone whose routine OS patching pulled in a new Workbench version hit it with no warning.
-:::
-
-::: {.horror}
-[Monday morning]{.label}
-
-After a Workbench upgrade on Kubernetes, users' **suspended sessions crashed on resume**. The new server passed a flag the old session images didn't understand.
-
-> "I didn't see any mention of a breaking change."
-:::
-
-::: notes
-The Monday-morning story is from a Posit-internal server. Use "even we hit this" framing or drop it.
-
-TODO: ask Support for a customer story about unattended-upgrades silently upgrading a product. GitHub didn't have a strong one.
-:::
+<!-- we should find a new story for here - the vibe I'm going for is "user reports outage but it was really just routine maintenance" and hammering home how important having internal communication pathways is so that users are aware of upcoming changes -->
 
 ## Surprise!: do this instead
+
+![](/img/communication2.jpg){fig-align="center"}
 
 :::: {.columns}
 
@@ -761,6 +791,8 @@ vip report
 
 :::
 
+# Recap {background-color="#1a1a2e"}
+
 ## Recap: The upgrade checklist
 
 | Instead of... | Do this |
@@ -771,6 +803,8 @@ vip report
 | Never upgrading | Regular, boring upgrade cadence. Know your support dates. |
 | Skipping the release notes | Read every version's notes, especially Breaking and Deprecated |
 | Surprise! | Version holds, maintenance window, notify users, smoke test |
+
+<!-- Can we format this table more nicely? It is showing up with just horizontal lines and Id like it to just look better -->
 
 ## Thank you! 🎊
 
